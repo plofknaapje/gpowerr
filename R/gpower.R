@@ -63,6 +63,10 @@ gpower.default <-
 
     Z <- matrix(0, nrow = n, ncol = k)
 
+    if (length(rho) == 1) {
+      rho <- rep(rho, k)
+    }
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Init Single unit algorithm
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,6 +86,7 @@ gpower.default <-
 
           rho_max <- max(norm_a_i)
           i_max <- which.max(norm_a_i)
+          rho_c <- rho_c*rho_max
 
           # Initialisation
           x <- X[, i_max] / norm_a_i[i_max]
@@ -90,8 +95,13 @@ gpower.default <-
 
           while (TRUE) {
             X_x <- t(X) %*% x
-            t_resh <- sign(X_x) * max(abs(X_x) - rho_c, 0)
-
+            if (iter == 1) {
+              print(pmax(abs(X_x) - rho_c, 0))
+            }
+            t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
+            if (iter == 1) {
+              print(t_resh)
+            }
             # Cost function
             f[iter] <- sum(t_resh ** 2)
 

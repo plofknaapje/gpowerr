@@ -1,7 +1,5 @@
-library(gpowerpca)
+# library(gpowerpca)
 library(sparsepca)
-
-
 
 m = 1000
 V1 = rnorm(m, 0, 290)
@@ -15,8 +13,11 @@ X = scale(X, scale = FALSE)
 k <- 3
 gamma <- rep(0.2, k)
 
-gp_out<- gpower(X, rho=gamma, k=k)
+gp_out<- gpower(X, rho=0.1, k=k)
 spca_out <- spca(X, k=k, alpha=0, beta=0, center = TRUE, scale = FALSE, verbose=0)
 
 gp_out$loadings
 spca_out$loadings
+
+
+
