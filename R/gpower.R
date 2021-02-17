@@ -7,29 +7,32 @@
 # Code layout taken from the sparse-pca package by Benjamin Erichson
 
 
+library(MASS)
+
 #' @export
 gpower <-
-  function(X,
-           rho = 0,
-           k = 1,
-           penalty = 'l1',
-           block = 0,
+  function(A,
+           k,
+           rho,
+           penalty = c('l0', 'l1'),
+           block = c(TRUE, FALSE),
            mu = NA,
            iter_max = 1000,
-           epsilon = 1e-5)
+           epsilon = 1e-4)
     UseMethod("gpower")
 
 #' @export
 gpower.default <-
-  function(X,
-           rho = 0,
+  function(A,
            k = 1,
+           rho = 0,
            penalty = 'l1',
-           block = 0,
+           block = FALSE,
            mu = NA,
            iter_max = 1000,
            epsilon = 1e-4) {
-    X <- as.matrix(X)
+    A <- as.matrix(A)
+    X <- A
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Checks
@@ -47,13 +50,9 @@ gpower.default <-
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Init gpower object
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    gpowerObj = list(
-      loadings = NULL,
-      transform = NULL,
-      scores = NULL,
-      eigenvalues = NULL,
-      testing = FALSE
-    )
+    gpowerObj = list(loadings = NULL,
+                     scores = NULL,
+                     testing = FALSE)
 
     p <- nrow(X)
     n <- ncol(X)
@@ -71,7 +70,7 @@ gpower.default <-
     # Init Single unit algorithm
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (k == 1 | (k > 1 & block == 0)) {
+    if (k == 1 | (k > 1 & !block)) {
       if (penalty == 'l1') {
         # L1 penalty
 
@@ -86,7 +85,7 @@ gpower.default <-
 
           rho_max <- max(norm_a_i)
           i_max <- which.max(norm_a_i)
-          rho_c <- rho_c*rho_max
+          rho_c <- rho_c * rho_max
 
           # Initialisation
           x <- X[, i_max] / norm_a_i[i_max]
@@ -95,13 +94,8 @@ gpower.default <-
 
           while (TRUE) {
             X_x <- t(X) %*% x
-            if (iter == 1) {
-              print(pmax(abs(X_x) - rho_c, 0))
-            }
             t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
-            if (iter == 1) {
-              print(t_resh)
-            }
+
             # Cost function
             f[iter] <- sum(t_resh ** 2)
 
@@ -156,26 +150,28 @@ gpower.default <-
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Update gpower object
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    weights <- Z # W
+    scores <- A %*% weights # T
+    P <- t(A) %*% ginv(t(scores))
+    A_approx <- scores %*% t(P)
+
+    Svar <-
+      1 - (norm((A - A_approx), type = "F") / norm(A, type = "F")) ^ 2
 
     gpowerObj$loadings <- Z
-    # gpowerObj$transform <- A
-    # gpowerObj$scores <- X %*% B
-    # gpowerObj$eigenvalues <- svd_update$d / (n - 1)
-    # gpowerObj$objective <- obj
-
+    gpowerObj$scores <- scores
+    gpowerObj$a_approx <- A_approx
+    gpowerObj$prop_sparse <-  sum(rowSums(Z == 0)) / (n * k)
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Explained variance and explained variance ratio
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    # gpowerObj$sdev <-  sqrt( gpowerObj$eigenvalues )
-    # gpowerObj$var <- sum( apply( Re(X) , 2, stats::var ) )
-    # if(is.complex(X)) gpowerObj$var <- Re(gpowerObj$var + sum( apply( Im(X) , 2, stats::var ) ))
+    gpowerObj$exp_var <- Svar
 
 
     class(gpowerObj) <- "gpower"
-    return(gpowerObj)
-
+    gpowerObj
   }
 
 
@@ -185,13 +181,10 @@ print.gpower <- function(x , ...) {
   # Print gpower
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # cat("Standard deviations:\n")
-  # print(round(x$sdev, 3))
-  # cat("\nEigenvalues:\n")
-  # print(round(x$eigenvalues, 3))
-  # cat("\nSparse loadings:\n")
-  # print(round(x$loadings, 3))
-  print(x$loadings)
+  cat("Proportion of Explained Variance\n")
+  print(round(x$exp_var, 3))
+  cat("\nSparse loadings:\n")
+  print(round(x$loadings, 3))
 }
 
 
@@ -202,37 +195,107 @@ summary.gpower <- function(object , ...)
   # Summary gpower
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # variance = object$sdev**2
-  # explained_variance_ratio = variance / object$var
-  # cum_explained_variance_ratio = cumsum( explained_variance_ratio )
-  #
-  # x <- t(data.frame( var = round(variance, 3),
-  #                    sdev = round(object$sdev, 3),
-  #                    prob = round(explained_variance_ratio, 3),
-  #                    cum = round(cum_explained_variance_ratio, 3)))
-  #
-  # rownames( x ) <- c( 'Explained variance',
-  #                     'Standard deviations',
-  #                     'Proportion of variance',
-  #                     'Cumulative proportion')
-  #
-  # colnames( x ) <- paste(rep('PC', length(object$sdev)), 1:length(object$sdev), sep = "")
-  #
+  x <- t(data.frame(
+    var = round(object$exp_var, 3),
+    prop_sparse = round(object$prop_sparse, 3)
+  ))
+
+  rownames(x) <- c('Explained variance',
+                   'Proportion of Sparsity')
+
   # x <- as.matrix(x)
 
-  return(object$loadings)
+  x
 }
 
-pattern_filling <- function(X,
-                            pattern,
-                            Z,
-                            mu=NA) {
+#' @export
+auto_gpower <- function(X,
+                        k,
+                        prop_sparse,
+                        penalty = c('l0', 'l1'),
+                        block = c(TRUE, FALSE),
+                        mu = NA,
+                        iter_max = 1000,
+                        epsilon = 1e-4)
+  UseMethod("auto_gpower")
 
+
+#' @export
+auto_gpower.default <- function(X,
+                                k,
+                                prop_sparse,
+                                penalty = 'l1',
+                                block = FALSE,
+                                mu = NA,
+                                iter_max = 1000,
+                                epsilon = 1e-4) {
+  # Tunes rho to get desired proportion of sparsity
+
+  n <- ncol(X)
+  n_zeros_X <- floor(n * k * prop_sparse)
+  n_zeros_sparse <- 0
+
+  if (n_zeros_X == 0) {
+    # No sparsity
+    gpower(X, k, 0, penalty, block, mu, iter_max, epsilon)
+  }
+
+  # Starting bounds of binary search
+  lower <- 0
+  if (penalty == "l0") {
+    upper <- max(norm(X, type = "2"))
+  }
+  if (penalty == "l1") {
+    upper <- max(norm(X, type = "2")) ^ 2
+  }
+  i <- 0
+
+  while (n_zeros_X != n_zeros_sparse & iter_max > i) {
+    cut <- (lower + upper) / 2
+
+    if (penalty == "l0") {
+      gamma <- (cut ^ 2)
+    }
+    if (penalty == "l1") {
+      gamma <- cut
+    }
+
+    Z <- gpower(X, k, gamma, penalty, block, mu, iter_max, epsilon)
+
+    n_zeros_sparse <- sum(rowSums(Z$loadings == 0))
+
+    if (n_zeros_X > n_zeros_sparse) {
+      lower <- gamma
+    }
+    if (n_zeros_X < n_zeros_sparse) {
+      upper <- gamma
+    }
+
+    i <- i + 1
+  }
+  cat(
+    "After",
+    i,
+    "iterations, rho",
+    gamma,
+    "achieves",
+    prop_sparse,
+    "proportion of sparseness",
+    sep = " "
+  )
+  Z
+}
+
+# Support function for gpower
+pattern_filling <- function(A,
+                            pattern,
+                            Z = NA,
+                            mu = NA) {
   # Compute a local maximizer of
   # max_{X,Z} trace(X^T A Z N)  s.t. X^T X=I_m and Z(P)=0 and Diag(Z^T Z)=I_m
 
-  p <- nrow(X)
-  n <- ncol(X)
+  p <- nrow(A)
+  n <- ncol(A)
   m <- ncol(pattern)
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -246,7 +309,7 @@ pattern_filling <- function(X,
       z_red <- rep(0, n)
       support <- 1:n
 
-    } else if (sum(support) == 1){
+    } else if (sum(support) == 1) {
       z_red <- 1
 
     } else {
@@ -255,10 +318,10 @@ pattern_filling <- function(X,
       iter_max <- 1000
       f <- rep(0, iter_max)
       iter <- 1
-      X_red <- X[, support]
+      A_red <- A[, support]
 
       while (TRUE) {
-        temp <- t(X_red) %*% (X_red %*% u)
+        temp <- t(A_red) %*% (A_red %*% u)
         u <- temp / norm(temp, "2")
         f[iter] <- -2 * t(u) %*% temp
 
@@ -285,7 +348,136 @@ pattern_filling <- function(X,
     return(z)
   }
 
-  # TODO: Add block case with mu_i == 1
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # block case with mu_i == 1
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  # TODO: Add general block case
+  if (is.na(mu) & !is.na(Z)) {
+    # Invert pattern
+    pattern_inv <- pattern - 1
+    pattern_inv[pattern_inv == -1] <- 0
+    iter_max <- 1000
+    epsilon <- 1e-6
+    f <- rep(0, iter_max)
+    iter <- 1
+
+    while (TRUE) {
+      AZ <- A %*% Z
+      # Creates d, u and v
+      list2env(svd(AZ), .GlobalEnv)
+
+      X <- u %*% t(v)
+      ff <- 0
+      for (i in 1:m) {
+        ff <- ff + t(X[, i]) %*% AZ[, i]
+      }
+
+      f[iter] <- ff
+
+
+      Z <- t(A) %*% X
+      Z[pattern_inv] <- 0
+
+      for (i in 1:m) {
+        norm_Z <- norm(Z[, i], type = "2")
+        if (norm_Z > 0) {
+          Z[, i] <- Z[, 1] / norm_Z
+        }
+      }
+
+      if (iter > 2) {
+        if (iter > iter_max) {
+          print("Maximum number of iterations reached")
+          break
+        }
+        if (abs(f[iter] - f[iter - 1]) / abs(f[iter - 1]) < epsilon) {
+          break
+        }
+      }
+
+      iter <- iter + 1
+    }
+    return(Z)
+  }
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # General block case
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  if (!is.na(Z) & !is.na(mu)) {
+    pattern_inv <- pattern - 1
+    pattern_inv[pattern_inv == -1] <- 0
+    iter_max <- 1000
+    epsilon <- 1e-6
+    f <- rep(0, iter_max)
+    iter <- 1
+    if (length(mu) == 1) {
+      mu <- rep(mu, m)
+    }
+
+    while (TRUE) {
+      AZ <- A %*% Z
+
+      for (i in 1:m) {
+        AZ[, i] <- AZ[, i] * mu[i]
+      }
+
+      # Creates d, u and v
+      list2env(svd(AZ), .GlobalEnv)
+      X <- u %*% t(v)
+
+      ff <- 0
+      for (i in 1:m) {
+        ff <- ff + t(X[, i]) %*% AZ[, i]
+      }
+      f[iter] <- ff
+
+      Z <- t(A) %*% X
+      for (i in 1:m) {
+        Z[, i] <- Z[, i] * mu[i]
+      }
+      Z[pattern_inv] <- 0
+
+      for (i in 1:m) {
+        norm_Z <- norm(Z[, 1], type = "2")
+        if (norm_Z > 0) {
+          Z[, i] <- Z[, i] / norm_Z
+        }
+      }
+
+      if (iter > 2) {
+        if (iter > iter_max) {
+          print("Maximum number of iterations reached")
+          break
+        }
+        if (abs(f[iter] - f[iter - 1]) / abs(f[iter - 1]) < epsilon) {
+          break
+        }
+      }
+
+      iter <- iter + 1
+    }
+    return(Z)
+  }
+
 }
+
+library(sparsepca)
+
+X <- as.matrix(read.csv("tests/data.csv", header = FALSE))
+
+
+## Comparison
+gpow <- gpower(X, rho = 0.1, k = 5)
+sparse <- spca(X,
+               k = 5,
+               scale = FALSE,
+               center = FALSE)
+
+n_zeros_sparse <- sum(rowSums(gpow$loadings == 0))
+
+## Auto
+# auto <- auto_gpower(X, k=5, prop_sparse=0.8)
+# summary(auto)
+# print(auto)
