@@ -2,11 +2,18 @@ Package: gpowerpca
 Type: Package
 Title: Sparce PCA using the G-Power method
 Version: 0.1.0
-Author: Robin Verhoef
-Maintainer: Robin Verhoef <r.i.verhoef@uvt.nl>
-Description: Implementation of the G-Power method for Sparse PCA. M. Journeé, Y. Nestrov, R. Sepulchre, Generalized Power Method for Sparse Principal Component Analysis (2010)
-License: MIT
+License: GPL-3
 Encoding: UTF-8
+Authors@R: person("Robin", "Verhoef", email = "r.i.verhoef@uvt.nl", 
+  role = c("aut", "cre"))
+Description: An implementation of the G-Power method for Sparse PCA. M. Journee, 
+  Y. Nestrov, R. Sepulchre, Generalized Power Method for Sparse Principal 
+  Component Analysis (2010).
 LazyData: true
 URL: https://github.com/plofknaapje/gpowerpca
 BugReports: https://github.com/plofknaapje/gpowerpca
+RoxygenNote: 7.1.1
+Imports:
+  MASS
+Suggests:
+  sparsepca

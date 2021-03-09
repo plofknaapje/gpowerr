@@ -1,8 +1,32 @@
-# Matlab model test
-library(gpowerpca)
 library(sparsepca)
 
-A <- read.csv("tests/data.csv", header = FALSE)
+X <- as.matrix(read.csv("tests/data.csv", header = FALSE))
 
-Z1 <- gpower(A, rho=0.1, k=5)$loadings
-Z2 <- spca(A, k=5)
+
+## Comparison
+gpow_single <- gpower(X,
+  rho = 0.1,
+  k = 5,
+  penalty = "l1"
+)
+sparse <- spca(X,
+  k = 5,
+  scale = FALSE,
+  center = FALSE
+)
+
+print(gpow_single)
+
+## Auto
+# auto <- auto_gpower(X, k = 5, prop_sparse = 0.4)
+# summary(auto)
+
+gpow <- gpower(X,
+  rho = 0.1,
+  k = 5,
+  penalty = "l1",
+  block = TRUE,
+  mu = 1
+)
+
+print(gpow)
