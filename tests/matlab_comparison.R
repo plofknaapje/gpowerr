@@ -1,4 +1,3 @@
-library(sparsepca)
 
 X <- as.matrix(read.csv("tests/data.csv", header = FALSE))
 
@@ -8,11 +7,6 @@ gpow_single <- gpower(X,
   rho = 0.1,
   k = 5,
   penalty = "l1"
-)
-sparse <- spca(X,
-  k = 5,
-  scale = FALSE,
-  center = FALSE
 )
 
 print(gpow_single)

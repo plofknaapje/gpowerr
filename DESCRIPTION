@@ -15,5 +15,3 @@ BugReports: https://github.com/plofknaapje/gpowerpca
 RoxygenNote: 7.1.1
 Imports:
   MASS
-Suggests:
-  sparsepca

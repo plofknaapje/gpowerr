@@ -96,16 +96,16 @@ mu <- 1
 # mu <- c(1, 1.5, 0.5, 2, 1)
 
 # Single unit with l1 penalty
-gpower(A, k, rho, 'l1')
+gpower(A, k, rho, 'l1', FALSE)
 
 # Single unit with l0 penalty
-gpower(A, k, rho, 'l0')
+gpower(A, k, rho, 'l0', FALSE)
 
 # Block with l1 penalty
-gpower(A, k, rho, 'l1', TRUE, mu)
+gpower(A, k, rho, 'l1', FALSE, TRUE, mu)
 
 # Block with l0 penalty
-gpower(A, k, rho, 'l0', TRUE, mu)
+gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
 
 }
 \references{

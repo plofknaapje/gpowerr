@@ -71,16 +71,16 @@ source("R/pattern_filling.R")
 #' # mu <- c(1, 1.5, 0.5, 2, 1)
 #'
 #' # Single unit with l1 penalty
-#' gpower(A, k, rho, 'l1')
+#' gpower(A, k, rho, 'l1', FALSE)
 #'
 #' # Single unit with l0 penalty
-#' gpower(A, k, rho, 'l0')
+#' gpower(A, k, rho, 'l0', FALSE)
 #'
 #' # Block with l1 penalty
-#' gpower(A, k, rho, 'l1', TRUE, mu)
+#' gpower(A, k, rho, 'l1', FALSE, TRUE, mu)
 #'
 #' # Block with l0 penalty
-#' gpower(A, k, rho, 'l0', TRUE, mu)
+#' gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
 #'
 #' @references
 #' Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
@@ -113,7 +113,7 @@ gpower.default <-
            iter_max = 1000,
            epsilon = 1e-4) {
     A <- as.matrix(A)
-    X <- A
+
 
     # Checks ------------------------------------------------------------------
 
@@ -133,11 +133,11 @@ gpower.default <-
     # Initialize gpower object ------------------------------------------------
     gpowerObj <- list(
       loadings = NULL,
-      scores = NULL,
+      scores = NULL
     )
 
-    p <- nrow(X)
-    n <- ncol(X)
+    p <- nrow(A)
+    n <- ncol(A)
 
     iter_max <- iter_max
     epsilon <- epsilon
@@ -152,6 +152,13 @@ gpower.default <-
       mu <- rep(mu, k)
     }
     # Add centering
+
+    if (center) {
+      A <- scale(A, scale=FALSE)
+      gpowerObj$centers <- attr(A,"scaled:center")
+    }
+
+    X <- A
 
     # Single unit algorithm ---------------------------------------------------
 
@@ -418,14 +425,153 @@ gpower.default <-
       }
     }
 
+    # Block algorithm with mu != 1 ---------------------------------------------
+    else if (k > 1 & block & sum(mu == 1) < length(mu)) {
+      norm_a_i <- rep(0, n)
+
+      for (i in 1:n) {
+        norm_a_i[i] <- norm(X[, i], "2")
+      }
+
+      i_max <- which.max(norm_a_i)
+
+      # Initialization
+
+      qr_decomp <- qr(cbind(
+        X[, i_max] / norm_a_i[i_max],
+        matrix(rnorm(p * (k - 1)), nrow = p)
+      ),
+      LAPACK = T
+      ) # LAPACK to get MatLab qr(X, 0) results
+
+      x <- qr.Q(qr_decomp)
+      rho_max <- qr.R(qr_decomp)
+
+
+      f <- rep(0, iter_max)
+      iter <- 1
+
+      if (penalty == "l1") {
+        rho <- rho * mu %*% rho_max
+
+        while (TRUE) {
+          X_x <- t(X) %*% x
+
+          for (i in 1:k) {
+            X_x[, i] <- X_x[, i] * mu[i]
+          }
+
+          t_resh <- pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
+          f[iter] <- sum(t_resh^2)
+
+          if (f[iter] == 0) {
+            warning("Sparcity is set to high, all entries of loading vector are zero")
+            break
+          } else {
+            gradient <- matrix(rep(0, p * k), nrow = p)
+
+            for (i in 1:k) {
+              pattern <- t(t_resh[, i]) > 0
+              gradient[, i] <- X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+            }
+
+            svd_decomp <- svd(gradient)
+            x <- svd_decomp$u %*% t(svd_decomp$v)
+          }
+
+          if (iter > 2) {
+            if (iter > iter_max) {
+              print("Max iterations reached")
+              break
+            }
+            if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+              break
+            }
+          }
+          iter <- iter + 1
+        }
+
+        X_x <- t(X) %*% x
+
+        for (i in 1:k) {
+          X_x[,i] <- X_x[, i]*mu[i]
+          Z[, i] <- sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
+          if (max(abs(Z[, i]) > 0) > 0) {
+            Z[, i] <- Z[, i] / norm(Z[, i], "2")
+          }
+        }
+
+        pattern <- abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
+        Z <- pattern_filling(X, pattern, Z, mu)
+      }
+
+      if (penalty == "l0") {
+        rho <- rho * (mu %*% rho_max)^2
+
+        while (TRUE) {
+          X_x <- t(X) %*% x
+
+          for (i in 1:k) {
+            X_x[, i] <- X_x[, i] * mu[i]
+          }
+
+          t_resh <- pmax(X_x^2 - kronecker(matrix(1, n, 1), rho))
+          f[iter] <- sum(sum(t_resh))
+          if (f[iter] == 0) {
+            warning("Sparcity is set to high, all entries of loading vector are zero")
+            break
+          }
+          else {
+            gradient <- matrix(rep(0, p * k), nrow = p)
+
+            for (i in 1:k) {
+              pattern <- t(t_resh[, i]) > 0
+              gradient[, i] <- X[, pattern] %*% X_x[pattern, i]
+            }
+
+            svd_decomp <- svd(gradient)
+            x <- svd_decomp$u %*% t(svd_decomp$v)
+          }
+
+          if (iter > 2) {
+            if (iter > iter_max) {
+              print("Max iterations reached")
+              break
+            }
+            if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+              break
+            }
+          }
+          iter <- iter + 1
+        }
+
+        X_x <- t(X) %*% x
+        for (i in 1:k) {
+          X_x[, i] <- X_x[, i] * mu[i]
+        }
+
+        pattern <- (X_x^2 - kronecker(matrix(1, n, 1), rho)) > 0
+        pattern_inv <- pattern == 0
+        Z <- t(X) %*% x
+        Z[pattern_inv] <- 0
+        norm_z <- rep(0, k)
+
+        for (i in 1:k) {
+          norm_z[i] <- norm(Z[, i], "2")
+          if (norm_z[i] > 0) {
+            Z[, i] <- Z[, i] / norm_z[i]
+          }
+        }
+      }
+    }
+
+
 
     # Update gpower object ----------------------------------------------------
     weights <- Z # W
     scores <- A %*% weights # T
     P <- t(A) %*% ginv(t(scores))
     A_approx <- scores %*% t(P)
-
-
 
     gpowerObj$loadings <- Z
     gpowerObj$scores <- scores
@@ -557,3 +703,17 @@ auto_gpower.default <- function(X,
 
   Z
 }
+
+X <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
+
+
+gpower(A=X, k = 5, rho = 0.1,  penalty = "l1")
+gpower(A=X, k = 5, rho = 0.01, penalty = "l0")
+
+gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE, mu=1)
+gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE, mu=1)
+
+gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE,
+                           mu=c(1,0.5,0.33,0.25,0.2))
+gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE,
+                           mu=c(1,0.5,0.33,0.25,0.2))
