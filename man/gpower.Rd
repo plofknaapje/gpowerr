@@ -46,43 +46,38 @@ gradient descent. Default is 1000.}
 }
 \value{
 List containing: \describe{
-  \item{loadings}{The PCA components}
-  \item{scores}{Scores of the components on A}
-  \item{a_approx}{Reconstructed version of A using the components}
-  \item{prop_sparse}{Proportion of sparsity of the components}
-  \item{exp_var}{Explained ratio of variance of the components}
-  \item{centers}{Centers of matrix A if center == TRUE}
+\item{loadings}{The PCA components}
+\item{scores}{Scores of the components on A}
+\item{a_approx}{Reconstructed version of A using the components}
+\item{prop_sparse}{Proportion of sparsity of the components}
+\item{exp_var}{Explained ratio of variance of the components}
+\item{centers}{Centers of matrix A if center == TRUE}
 }
 }
 \description{
-Generalized power method for sparse principal component analysis. Implements
-the method developed by Journee et al. (2010) with a choice between a L1 and
-L0 penalty and a column based and block approach.
-}
-\details{
 GPower uses four different optimization procedures for the four combinations
 between l0 and l1 penalty and single-unit or block computation. With the l0
 penalty, the cardinality of the solutions is penalized. The objective
 function of the single unit case with l1 penalty is
-\denq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\left [
-\left |  a_{i}^{T}x\right | - \gamma  \right ]_{+}^{2}}}
+\loadmathjax
+\mjsdenq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
+\|  a_{i}^{T}x \| - \gamma  \rbrace_{+}^{2}}}
 where x represents the components and gamma is the penalty.
 For the single unit case with the l0 penalty, the following function is used
-\denq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\left [
-\left ( a_{i}^{T} x \right )^{2} - \gamma  \right ]_{+}}}
+\loadmathjax
+\mjsdenq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
+\( a_{i}^{T} x \)^{2} - \gamma  \rbrace_{+}}}
 Where the results are squared before gamma is subtracted instead of after.
 For the block cases, the following functions are used. First the case with l1
 penalty
-\denq{\phi_{l_{1},m}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{j=1}^{m}{\sum_{i=1}
-^{n}{\left [ \mu_{j} \left | a_{i}^{T}x_{j} \right | - \gamma_{j} \right ]_
-{+}^{2}}}}
-and for the l0 penalty
-\denq{\phi_{l_{0},m}(\gamma) = \max_{x\in S^{p}}\sum_{j=1}^{m}{\sum_{i=1}^{n}
-{ \left [ \left ( \mu_{j} a_{i}^{T}x_{j} \right )^{2} - \gamma_{j} \right ]_
-{+}}}}
 All of these functions are optimized using gradient decent. In this
 implementation, a relative penalty is implemented with rho. Gamma is
 calculated using rho and the maximal norm value.
+}
+\details{
+Generalized power method for sparse principal component analysis. Implements
+the method developed by Journee et al. (2010) with a choice between a L1 and
+L0 penalty and a column based and block approach.
 }
 \examples{
 set.seed(360)
@@ -111,5 +106,5 @@ gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
 \references{
 Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
 Generalized Power Method for Sparse Principal Component Analysis.
-*Journal of Machine Learning Research. 11*, 517-553.
+\emph{Journal of Machine Learning Research. 11}, 517-553.
 }

@@ -6,26 +6,22 @@ source("R/pattern_filling.R")
 #' the method developed by Journee et al. (2010) with a choice between a L1 and
 #' L0 penalty and a column based and block approach.
 #'
-#' GPower uses four different optimization procedures for the four combinations
+#' @description GPower uses four different optimization procedures for the four combinations
 #' between l0 and l1 penalty and single-unit or block computation. With the l0
 #' penalty, the cardinality of the solutions is penalized. The objective
 #' function of the single unit case with l1 penalty is
-#' \denq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\left [
-#' \left |  a_{i}^{T}x\right | - \gamma  \right ]_{+}^{2}}}
+#' \loadmathjax
+#' \mjsdenq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
+#' \|  a_{i}^{T}x \| - \gamma  \rbrace_{+}^{2}}}
 #' where x represents the components and gamma is the penalty.
 #' For the single unit case with the l0 penalty, the following function is used
-#' \denq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\left [
-#' \left ( a_{i}^{T} x \right )^{2} - \gamma  \right ]_{+}}}
+#' \loadmathjax
+#' \mjsdenq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
+#' \( a_{i}^{T} x \)^{2} - \gamma  \rbrace_{+}}}
 #' Where the results are squared before gamma is subtracted instead of after.
 #' For the block cases, the following functions are used. First the case with l1
 #' penalty
-#' \denq{\phi_{l_{1},m}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{j=1}^{m}{\sum_{i=1}
-#' ^{n}{\left [ \mu_{j} \left | a_{i}^{T}x_{j} \right | - \gamma_{j} \right ]_
-#' {+}^{2}}}}
-#' and for the l0 penalty
-#' \denq{\phi_{l_{0},m}(\gamma) = \max_{x\in S^{p}}\sum_{j=1}^{m}{\sum_{i=1}^{n}
-#' { \left [ \left ( \mu_{j} a_{i}^{T}x_{j} \right )^{2} - \gamma_{j} \right ]_
-#' {+}}}}
+
 #' All of these functions are optimized using gradient decent. In this
 #' implementation, a relative penalty is implemented with rho. Gamma is
 #' calculated using rho and the maximal norm value.
@@ -623,97 +619,16 @@ summary.gpower <- function(object, ...) {
   x
 }
 
-#' @export
-auto_gpower <- function(X,
-                        k,
-                        prop_sparse,
-                        penalty = c("l0", "l1"),
-                        block = c(TRUE, FALSE),
-                        mu = NA,
-                        iter_max = 1000,
-                        epsilon = 1e-4) {
-  UseMethod("auto_gpower")
-}
 
-
-#' @export
-auto_gpower.default <- function(X,
-                                k,
-                                prop_sparse,
-                                penalty = "l1",
-                                block = FALSE,
-                                mu = NA,
-                                iter_max = 1000,
-                                epsilon = 1e-4) {
-  # Tunes rho to get desired proportion of sparsity
-
-  n <- ncol(X)
-  n_zeros_X <- floor(n * k * prop_sparse)
-  n_zeros_sparse <- 0
-
-  if (n_zeros_X == 0) {
-    # No sparsity
-    gpower(X, k, 0, penalty, block, mu, iter_max, epsilon)
-  }
-
-  # Starting bounds of binary search
-  lower <- 0
-  if (penalty == "l0") {
-    upper <- max(norm(X, "2"))
-  }
-  if (penalty == "l1") {
-    upper <- max(norm(X, "2"))^2
-  }
-  i <- 0
-
-  while (n_zeros_X != n_zeros_sparse & iter_max > i) {
-    cut <- (lower + upper) / 2
-
-    if (penalty == "l0") {
-      gamma <- (cut^2)
-    }
-    if (penalty == "l1") {
-      gamma <- cut
-    }
-
-    Z <-
-      gpower(X, k, gamma, penalty, block, mu, iter_max, epsilon)
-
-    n_zeros_sparse <- sum(rowSums(Z$loadings == 0))
-
-    if (n_zeros_X > n_zeros_sparse) {
-      lower <- gamma
-    }
-    if (n_zeros_X < n_zeros_sparse) {
-      upper <- gamma
-    }
-
-    i <- i + 1
-  }
-  cat(
-    "After",
-    i,
-    "iterations, rho",
-    gamma,
-    "achieves",
-    prop_sparse,
-    "proportion of sparseness",
-    sep = " "
-  )
-
-  Z
-}
-
-X <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
-
-
-gpower(A=X, k = 5, rho = 0.1,  penalty = "l1")
-gpower(A=X, k = 5, rho = 0.01, penalty = "l0")
-
-gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE, mu=1)
-gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE, mu=1)
-
-gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE,
-                           mu=c(1,0.5,0.33,0.25,0.2))
-gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE,
-                           mu=c(1,0.5,0.33,0.25,0.2))
+# X <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
+#
+# gpower(A=X, k = 5, rho = 0.1,  penalty = "l1")
+# gpower(A=X, k = 5, rho = 0.01, penalty = "l0")
+#
+# gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE, mu=1)
+# gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE, mu=1)
+#
+# gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE,
+#                            mu=c(1,0.5,0.33,0.25,0.2))
+# gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE,
+#                            mu=c(1,0.5,0.33,0.25,0.2))
