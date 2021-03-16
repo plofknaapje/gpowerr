@@ -59,17 +59,22 @@ GPower uses four different optimization procedures for the four combinations
 between l0 and l1 penalty and single-unit or block computation. With the l0
 penalty, the cardinality of the solutions is penalized. The objective
 function of the single unit case with l1 penalty is
-\loadmathjax
-\mjsdenq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
-\|  a_{i}^{T}x \| - \gamma  \rbrace_{+}^{2}}}
+\loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
+\sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}}
 where x represents the components and gamma is the penalty.
 For the single unit case with the l0 penalty, the following function is used
-\loadmathjax
-\mjsdenq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
-\( a_{i}^{T} x \)^{2} - \gamma  \rbrace_{+}}}
+\mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{
+\sum_{i=1}^{n}{\lbrack (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}}
 Where the results are squared before gamma is subtracted instead of after.
 For the block cases, the following functions are used. First the case with l1
 penalty
+\mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
+\sum_{j=1}^{m}{\sum_{i=1}^{n}{
+\lbrack \mu_{j} |a_{i}^{T}x_{j}| - \gamma_{i} \rbrack_{+}^{2}}}}
+and for the l0 penalty
+\mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
+\sum_{j=1}^{m}{\sum_{i=1}^{n}{
+\lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} - \gamma_{i} \rbrack_{+}}}}
 All of these functions are optimized using gradient decent. In this
 implementation, a relative penalty is implemented with rho. Gamma is
 calculated using rho and the maximal norm value.
@@ -84,7 +89,7 @@ set.seed(360)
 p <- 20
 n <- 50
 k <- 5
-A <- scale(matrix(rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
+A <- scale(matrix(stats::rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
 rho <- 0.1
 # rho <- c(0.1, 0.2, 0.1, 0.2, 0.1)
 mu <- 1

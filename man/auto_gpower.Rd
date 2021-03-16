@@ -5,10 +5,11 @@
 \title{Find GPower rho for proportion of sparcity}
 \usage{
 auto_gpower(
-  X,
+  A,
   k,
   prop_sparse,
   penalty = c("l0", "l1"),
+  center = c(TRUE, FALSE),
   block = c(TRUE, FALSE),
   mu = NA,
   iter_max = 1000,
@@ -16,6 +17,8 @@ auto_gpower(
 )
 }
 \arguments{
+\item{A}{Input matrix of size (p x n) with p < n.}
+
 \item{k}{Number of components, 0 < k < p.}
 
 \item{prop_sparse}{the percentage of the total values of the loadings matrix
@@ -23,6 +26,8 @@ which is equal to zero.}
 
 \item{penalty}{Penalty type to use in the optimization. Either "l0" or "l1".
 The default is "l1" since it performed best in experiments.}
+
+\item{center}{Centers the data. Either TRUE or FALSE. Default is TRUE.}
 
 \item{block}{Optimization method. If FALSE, the components are calculated
 individually. If TRUE, all components are calculated at the same time.

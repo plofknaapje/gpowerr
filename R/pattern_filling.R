@@ -68,7 +68,9 @@ pattern_filling <- function(A,
     while (TRUE) {
       AZ <- A %*% Z
       # Creates d, u and v
-      list2env(svd(AZ), .GlobalEnv)
+      svd_lst <- svd(AZ)
+      u <- svd_lst$u
+      v <- svd_lst$v
 
       X <- u %*% t(v)
       ff <- 0

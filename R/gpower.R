@@ -10,22 +10,25 @@ source("R/pattern_filling.R")
 #' between l0 and l1 penalty and single-unit or block computation. With the l0
 #' penalty, the cardinality of the solutions is penalized. The objective
 #' function of the single unit case with l1 penalty is
-#' \loadmathjax
-#' \mjsdenq{\phi_{l_{1}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
-#' \|  a_{i}^{T}x \| - \gamma  \rbrace_{+}^{2}}}
+#' \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
+#' \sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}}
 #' where x represents the components and gamma is the penalty.
 #' For the single unit case with the l0 penalty, the following function is used
-#' \loadmathjax
-#' \mjsdenq{\phi_{l_{0}}^{2}(\gamma) = \max_{x\in S^{p}}\sum_{i=1}^{n}{\lbrace
-#' \( a_{i}^{T} x \)^{2} - \gamma  \rbrace_{+}}}
+#' \mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{
+#' \sum_{i=1}^{n}{\lbrack (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}}
 #' Where the results are squared before gamma is subtracted instead of after.
 #' For the block cases, the following functions are used. First the case with l1
 #' penalty
-
+#' \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
+#' \sum_{j=1}^{m}{\sum_{i=1}^{n}{
+#' \lbrack \mu_{j} |a_{i}^{T}x_{j}| - \gamma_{i} \rbrack_{+}^{2}}}}
+#' and for the l0 penalty
+#' \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
+#' \sum_{j=1}^{m}{\sum_{i=1}^{n}{
+#' \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} - \gamma_{i} \rbrack_{+}}}}
 #' All of these functions are optimized using gradient decent. In this
 #' implementation, a relative penalty is implemented with rho. Gamma is
 #' calculated using rho and the maximal norm value.
-#'
 #'
 #' @param A Input matrix of size (p x n) with p < n.
 #' @param k Number of components, 0 < k < p.
@@ -60,7 +63,7 @@ source("R/pattern_filling.R")
 #' p <- 20
 #' n <- 50
 #' k <- 5
-#' A <- scale(matrix(rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
+#' A <- scale(matrix(stats::rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
 #' rho <- 0.1
 #' # rho <- c(0.1, 0.2, 0.1, 0.2, 0.1)
 #' mu <- 1
@@ -113,7 +116,7 @@ gpower.default <-
 
     # Checks ------------------------------------------------------------------
 
-    if (any(is.na(X))) {
+    if (any(is.na(A))) {
       warning("Missing values are omitted: na.omit(X).")
       X <- stats::na.omit(X)
     }
@@ -122,7 +125,7 @@ gpower.default <-
       warning("NA found in rho")
     }
 
-    if (block == 1 & is.na(mu)) {
+    if (block == 1 & any(is.na(mu))) {
       warning("Mu needs to be defined for Block algoritm")
     }
 
@@ -144,7 +147,7 @@ gpower.default <-
       rho <- rep(rho, k)
     }
 
-    if (length(mu) == 1 & !is.na(mu)) {
+    if (length(mu) == 1 & !any(is.na(mu))) {
       mu <- rep(mu, k)
     }
     # Add centering
@@ -311,7 +314,7 @@ gpower.default <-
 
       qr_decomp <- qr(cbind(
         X[, i_max] / norm_a_i[i_max],
-        matrix(rnorm(p * (k - 1)), nrow = p)
+        matrix(stats::rnorm(p * (k - 1)), nrow = p)
       ),
       LAPACK = T
       ) # LAPACK to get MatLab qr(X, 0) results
@@ -435,7 +438,7 @@ gpower.default <-
 
       qr_decomp <- qr(cbind(
         X[, i_max] / norm_a_i[i_max],
-        matrix(rnorm(p * (k - 1)), nrow = p)
+        matrix(stats::rnorm(p * (k - 1)), nrow = p)
       ),
       LAPACK = T
       ) # LAPACK to get MatLab qr(X, 0) results
@@ -562,11 +565,9 @@ gpower.default <-
     }
 
 
-
     # Update gpower object ----------------------------------------------------
-    weights <- Z # W
-    scores <- A %*% weights # T
-    P <- t(A) %*% ginv(t(scores))
+    scores <- A %*% Z
+    P <- t(A) %*% MASS::ginv(t(scores))
     A_approx <- scores %*% t(P)
 
     gpowerObj$loadings <- Z
@@ -574,12 +575,17 @@ gpower.default <-
     gpowerObj$a_approx <- A_approx
     gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
 
+    # Add component variance (p22)
+    AdjVar_qr <- qr(scores)
+    AdjVar <- qr.R(AdjVar_qr)^2
+    ### Extract values on the diagonal
+
     # Explained variance ratio
-    Svar <-
-      1 - (norm((A - A_approx), type = "F") / norm(A, type = "F"))^2
 
-    gpowerObj$exp_var <- Svar
+    gpowerObj$exp_var <- 1 - (norm((A - A_approx), type = "F") /
+                                norm(A, type = "F"))^2
 
+    # Compare sum of adj var to explained var
 
     class(gpowerObj) <- "gpower"
 
