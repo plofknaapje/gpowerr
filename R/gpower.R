@@ -576,16 +576,21 @@ gpower.default <-
     gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
 
     # Add component variance (p22)
-    AdjVar_qr <- qr(scores)
-    AdjVar <- qr.R(AdjVar_qr)^2
+    AdjVar <- qr.R(qr(scores))^2
+
     ### Extract values on the diagonal
+    comp_var <- rep(NA, k)
+    for (i in 1:k){
+      comp_var[i] <- AdjVar[i,i]
+    }
 
     # Explained variance ratio
-
+    gpowerObj$comp_var <- comp_var
     gpowerObj$exp_var <- 1 - (norm((A - A_approx), type = "F") /
                                 norm(A, type = "F"))^2
 
     # Compare sum of adj var to explained var
+
 
     class(gpowerObj) <- "gpower"
 
@@ -625,16 +630,5 @@ summary.gpower <- function(object, ...) {
   x
 }
 
-
-# X <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
-#
-# gpower(A=X, k = 5, rho = 0.1,  penalty = "l1")
-# gpower(A=X, k = 5, rho = 0.01, penalty = "l0")
-#
-# gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE, mu=1)
-# gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE, mu=1)
-#
-# gpower(A=X, k = 5, rho = 0.1, penalty = "l1", center=TRUE, block=TRUE,
-#                            mu=c(1,0.5,0.33,0.25,0.2))
-# gpower(A=X, k = 5, rho = 0.01, penalty = "l0", center=TRUE, block=TRUE,
-#                            mu=c(1,0.5,0.33,0.25,0.2))
+pow20 <- gpower(A=data, 20, 0.1, center=FALSE, penalty = "l1")
+pow10 <- gpower(A=data, 10, 0.1, center=FALSE, penalty = "l1")
