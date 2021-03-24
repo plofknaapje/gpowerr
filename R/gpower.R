@@ -6,57 +6,51 @@ source("R/pattern_filling.R")
 #' the method developed by Journee et al. (2010) with a choice between a L1 and
 #' L0 penalty and a column based and block approach.
 #'
-#' @description GPower uses four different optimization procedures for the four combinations
-#' between l0 and l1 penalty and single-unit or block computation. With the l0
-#' penalty, the cardinality of the solutions is penalized. The objective
-#' function of the single unit case with l1 penalty is
-#' \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
-#' \sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}}
-#' where x represents the components and gamma is the penalty.
-#' For the single unit case with the l0 penalty, the following function is used
-#' \mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{
-#' \sum_{i=1}^{n}{\lbrack (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}}
-#' Where the results are squared before gamma is subtracted instead of after.
-#' For the block cases, the following functions are used. First the case with l1
-#' penalty
-#' \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
-#' \sum_{j=1}^{m}{\sum_{i=1}^{n}{
-#' \lbrack \mu_{j} |a_{i}^{T}x_{j}| - \gamma_{i} \rbrack_{+}^{2}}}}
-#' and for the l0 penalty
-#' \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
-#' \sum_{j=1}^{m}{\sum_{i=1}^{n}{
-#' \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} - \gamma_{i} \rbrack_{+}}}}
-#' All of these functions are optimized using gradient decent. In this
-#' implementation, a relative penalty is implemented with rho. Gamma is
-#' calculated using rho and the maximal norm value.
+#' @description GPower uses four different optimization procedures for the four
+#'   combinations between l0 and l1 penalty and single-unit or block
+#'   computation. With the l0 penalty, the cardinality of the solutions is
+#'   penalized. The objective function of the single unit case with l1 penalty
+#'   is \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
+#'   \sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}} where x
+#'   represents the components and gamma is the penalty. For the single unit
+#'   case with the l0 penalty, the following function is used
+#'   \mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{ \sum_{i=1}^{n}{\lbrack
+#'   (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}} Where the results are squared
+#'   before gamma is subtracted instead of after. For the block cases, the
+#'   following functions are used. First the case with l1 penalty
+#'   \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
+#'   \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack \mu_{j} |a_{i}^{T}x_{j}| -
+#'   \gamma_{i} \rbrack_{+}^{2}}}} and for the l0 penalty
+#'   \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
+#'   \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} -
+#'   \gamma_{i} \rbrack_{+}}}} All of these functions are optimized using
+#'   gradient decent. In this implementation, a relative penalty is implemented
+#'   with rho. Gamma is calculated using rho and the maximal norm value.
 #'
 #' @param A Input matrix of size (p x n) with p < n.
 #' @param k Number of components, 0 < k < p.
 #' @param rho Relative sparsity weight factor of the optimization. Either a
-#' vector of floats of size k or float which will be repeated k times. 0 < rho
-#' < 1.
+#'   vector of floats of size k or float which will be repeated k times. 0 < rho
+#'   < 1.
 #' @param penalty Penalty type to use in the optimization. Either "l0" or "l1".
-#' The default is "l1" since it performed best in experiments.
+#'   The default is "l1" since it performed best in experiments.
 #' @param center Centers the data. Either TRUE or FALSE. Default is TRUE.
 #' @param block Optimization method. If FALSE, the components are calculated
-#' individually. If TRUE, all components are calculated at the same time.
-#' Default is FALSE.
+#'   individually. If TRUE, all components are calculated at the same time.
+#'   Default is FALSE.
 #' @param mu Mean to be applied to each component in the block. Either a vector
-#' of float of size k or a float which will be repeated k times. Only used if
-#' block is TRUE. Default is FALSE.
-#' @param iter_max Maximum iterations when adjusting components with
-#' gradient descent. Default is 1000.
+#'   of float of size k or a float which will be repeated k times. Only used if
+#'   block is TRUE. Default is FALSE.
+#' @param iter_max Maximum iterations when adjusting components with gradient
+#'   descent. Default is 1000.
 #' @param epsilon Epsilon of the gradient descent stopping function. Default is
-#' 1e-4.
+#'   1e-4.
 #'
-#' @return List containing: \describe{
-#'   \item{loadings}{The PCA components}
-#'   \item{scores}{Scores of the components on A}
-#'   \item{a_approx}{Reconstructed version of A using the components}
-#'   \item{prop_sparse}{Proportion of sparsity of the components}
-#'   \item{exp_var}{Explained ratio of variance of the components}
-#'   \item{centers}{Centers of matrix A if center == TRUE}
-#' }
+#' @return List containing: \describe{ \item{loadings}{The PCA components}
+#'   \item{scores}{Scores of the components on A} \item{a_approx}{Reconstructed
+#'   version of A using the components} \item{prop_sparse}{Proportion of
+#'   sparsity of the components} \item{exp_var}{Explained ratio of variance of
+#'   the components} \item{centers}{Centers of matrix A if center == TRUE} }
 #'
 #' @examples
 #' set.seed(360)
@@ -81,10 +75,9 @@ source("R/pattern_filling.R")
 #' # Block with l0 penalty
 #' gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
 #'
-#' @references
-#' Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
-#' Generalized Power Method for Sparse Principal Component Analysis.
-#' *Journal of Machine Learning Research. 11*, 517-553.
+#' @references Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
+#' Generalized Power Method for Sparse Principal Component Analysis. *Journal of
+#' Machine Learning Research. 11*, 517-553.
 #'
 #' @export
 gpower <-
@@ -130,10 +123,8 @@ gpower.default <-
     }
 
     # Initialize gpower object ------------------------------------------------
-    gpowerObj <- list(
-      loadings = NULL,
-      scores = NULL
-    )
+    gpowerObj <- list(loadings = NULL,
+                      scores = NULL)
 
     p <- nrow(A)
     n <- ncol(A)
@@ -153,8 +144,8 @@ gpower.default <-
     # Add centering
 
     if (center) {
-      A <- scale(A, scale=FALSE)
-      gpowerObj$centers <- attr(A,"scaled:center")
+      A <- scale(A, scale = FALSE)
+      gpowerObj$centers <- attr(A, "scaled:center")
     }
 
     X <- A
@@ -162,9 +153,7 @@ gpower.default <-
     # Single unit algorithm ---------------------------------------------------
 
     if (k == 1 | (k > 1 & !block)) {
-
       if (penalty == "l1") {
-
         for (c in 1:k) {
           # Loop on the components
           rho_c <- rho[c]
@@ -188,7 +177,7 @@ gpower.default <-
             t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
 
             # Cost function
-            f[iter] <- sum(t_resh**2)
+            f[iter] <- sum(t_resh ** 2)
 
             if (f[iter] == 0) {
               # Sparsity is too high
@@ -203,7 +192,7 @@ gpower.default <-
             if (iter > 2) {
               # Stopping criteria
               if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
-                iter > iter_max) {
+                  iter > iter_max) {
                 if (iter > iter_max) {
                   print("Max iterations reached")
                   break
@@ -228,10 +217,7 @@ gpower.default <-
           X <- X - y %*% z
           Z[, c] <- z
         }
-      }
-
-      if (penalty == "l0") {
-
+      } else if (penalty == "l0") {
         for (c in 1:k) {
           # Loop on the components
           rho_c <- rho[c]
@@ -243,7 +229,7 @@ gpower.default <-
 
           rho_max <- max(norm_a_i)
           i_max <- which.max(norm_a_i)
-          rho_c <- rho_c * rho_max^2
+          rho_c <- rho_c * rho_max ^ 2
 
           # Initialisation
           x <- X[, i_max] / norm_a_i[i_max]
@@ -252,7 +238,7 @@ gpower.default <-
 
           while (TRUE) {
             X_x <- t(X) %*% x
-            t_resh <- pmax(X_x^2 - rho_c, 0)
+            t_resh <- pmax(X_x ^ 2 - rho_c, 0)
 
             # Cost function
             f[iter] <- sum(t_resh)
@@ -270,7 +256,7 @@ gpower.default <-
             if (iter > 2) {
               # Stopping criteria
               if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
-                iter > iter_max) {
+                  iter > iter_max) {
                 if (iter > iter_max) {
                   print("Max iterations reached")
                   break
@@ -283,7 +269,7 @@ gpower.default <-
           }
 
           pattern <-
-            ((t(X) %*% x)^2 - rho_c > 0) # Pattern of sparsity
+            ((t(X) %*% x) ^ 2 - rho_c > 0) # Pattern of sparsity
           y <- x
           pattern_inv <- pattern == 0
 
@@ -297,6 +283,8 @@ gpower.default <-
           X <- X - y %*% t(z)
           Z[, c] <- z
         }
+      } else {
+          warning("Penalty not recognized")
       }
     }
 
@@ -312,12 +300,11 @@ gpower.default <-
 
       # Initialization
 
-      qr_decomp <- qr(cbind(
-        X[, i_max] / norm_a_i[i_max],
-        matrix(stats::rnorm(p * (k - 1)), nrow = p)
-      ),
-      LAPACK = T
-      ) # LAPACK to get MatLab qr(X, 0) results
+      qr_decomp <- qr(cbind(X[, i_max] / norm_a_i[i_max],
+                            matrix(stats::rnorm(p * (
+                              k - 1
+                            )), nrow = p)),
+                      LAPACK = T) # LAPACK to get MatLab qr(X, 0) results
 
       x <- qr.Q(qr_decomp)
       rho_max <- qr.R(qr_decomp)
@@ -332,7 +319,7 @@ gpower.default <-
         while (TRUE) {
           X_x <- t(X) %*% x
           t_resh <- pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
-          f[iter] <- sum(t_resh^2)
+          f[iter] <- sum(t_resh ^ 2)
 
           if (f[iter] == 0) {
             warning("Sparcity is set to high, all entries of loading vector are zero")
@@ -342,7 +329,8 @@ gpower.default <-
 
             for (i in 1:k) {
               pattern <- t(t_resh[, i]) > 0
-              gradient[, i] <- X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+              gradient[, i] <-
+                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
             }
 
             svd_decomp <- svd(gradient)
@@ -372,14 +360,12 @@ gpower.default <-
 
         pattern <- abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
         Z <- pattern_filling(X, pattern, Z, mu)
-      }
-
-      if (penalty == "l0") {
-        rho <- rho %*% (rho_max^2)
+      } else if (penalty == "l0") {
+        rho <- rho %*% (rho_max ^ 2)
 
         while (TRUE) {
           X_x <- t(X) %*% x
-          t_resh <- pmax(X_x^2 - kronecker(matrix(1, n, 1), rho))
+          t_resh <- pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
           f[iter] <- sum(sum(t_resh))
           if (f[iter] == 0) {
             warning("Sparcity is set to high, all entries of loading vector are zero")
@@ -409,7 +395,7 @@ gpower.default <-
           iter <- iter + 1
         }
 
-        pattern <- (X_x^2 - kronecker(matrix(1, n, 1), rho)) > 0
+        pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
         pattern_inv <- pattern == 0
         Z <- X_x
         Z[pattern_inv] <- 0
@@ -421,6 +407,8 @@ gpower.default <-
             Z[, i] <- Z[, i] / norm_z[i]
           }
         }
+      } else {
+        warning("Penalty not recognized")
       }
     }
 
@@ -436,12 +424,11 @@ gpower.default <-
 
       # Initialization
 
-      qr_decomp <- qr(cbind(
-        X[, i_max] / norm_a_i[i_max],
-        matrix(stats::rnorm(p * (k - 1)), nrow = p)
-      ),
-      LAPACK = T
-      ) # LAPACK to get MatLab qr(X, 0) results
+      qr_decomp <- qr(cbind(X[, i_max] / norm_a_i[i_max],
+                            matrix(stats::rnorm(p * (
+                              k - 1
+                            )), nrow = p)),
+                      LAPACK = T) # LAPACK to get MatLab qr(X, 0) results
 
       x <- qr.Q(qr_decomp)
       rho_max <- qr.R(qr_decomp)
@@ -461,7 +448,7 @@ gpower.default <-
           }
 
           t_resh <- pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
-          f[iter] <- sum(t_resh^2)
+          f[iter] <- sum(t_resh ^ 2)
 
           if (f[iter] == 0) {
             warning("Sparcity is set to high, all entries of loading vector are zero")
@@ -471,7 +458,8 @@ gpower.default <-
 
             for (i in 1:k) {
               pattern <- t(t_resh[, i]) > 0
-              gradient[, i] <- X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+              gradient[, i] <-
+                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
             }
 
             svd_decomp <- svd(gradient)
@@ -493,7 +481,7 @@ gpower.default <-
         X_x <- t(X) %*% x
 
         for (i in 1:k) {
-          X_x[,i] <- X_x[, i]*mu[i]
+          X_x[, i] <- X_x[, i] * mu[i]
           Z[, i] <- sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
           if (max(abs(Z[, i]) > 0) > 0) {
             Z[, i] <- Z[, i] / norm(Z[, i], "2")
@@ -502,10 +490,8 @@ gpower.default <-
 
         pattern <- abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
         Z <- pattern_filling(X, pattern, Z, mu)
-      }
-
-      if (penalty == "l0") {
-        rho <- rho * (mu %*% rho_max)^2
+      } else if (penalty == "l0") {
+        rho <- rho * (mu %*% rho_max) ^ 2
 
         while (TRUE) {
           X_x <- t(X) %*% x
@@ -514,7 +500,7 @@ gpower.default <-
             X_x[, i] <- X_x[, i] * mu[i]
           }
 
-          t_resh <- pmax(X_x^2 - kronecker(matrix(1, n, 1), rho))
+          t_resh <- pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
           f[iter] <- sum(sum(t_resh))
           if (f[iter] == 0) {
             warning("Sparcity is set to high, all entries of loading vector are zero")
@@ -549,7 +535,7 @@ gpower.default <-
           X_x[, i] <- X_x[, i] * mu[i]
         }
 
-        pattern <- (X_x^2 - kronecker(matrix(1, n, 1), rho)) > 0
+        pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
         pattern_inv <- pattern == 0
         Z <- t(X) %*% x
         Z[pattern_inv] <- 0
@@ -561,6 +547,8 @@ gpower.default <-
             Z[, i] <- Z[, i] / norm_z[i]
           }
         }
+      } else {
+        warning("Penalty not recognized")
       }
     }
 
@@ -576,18 +564,18 @@ gpower.default <-
     gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
 
     # Add component variance (p22)
-    AdjVar <- qr.R(qr(scores))^2
+    AdjVar <- qr.R(qr(scores)) ^ 2
 
     ### Extract values on the diagonal
     comp_var <- rep(NA, k)
-    for (i in 1:k){
-      comp_var[i] <- AdjVar[i,i]
+    for (i in 1:k) {
+      comp_var[i] <- AdjVar[i, i]
     }
 
     # Explained variance ratio
     gpowerObj$comp_var <- comp_var
     gpowerObj$exp_var <- 1 - (norm((A - A_approx), type = "F") /
-                                norm(A, type = "F"))^2
+                                norm(A, type = "F")) ^ 2
 
     # Compare sum of adj var to explained var
 
@@ -600,7 +588,6 @@ gpower.default <-
 
 #' @export
 print.gpower <- function(x, ...) {
-
   # Print gpower --------------------------------------------------------------
 
   cat("Proportion of Explained Variance\n")
@@ -613,7 +600,6 @@ print.gpower <- function(x, ...) {
 
 #' @export
 summary.gpower <- function(object, ...) {
-
   # Summary gpower ------------------------------------------------------------
 
 
@@ -622,13 +608,16 @@ summary.gpower <- function(object, ...) {
     prop_sparse = round(object$prop_sparse, 3)
   ))
 
-  rownames(x) <- c(
-    "Proportion of Explained Variance",
-    "Proportion of Sparsity"
-  )
+  rownames(x) <- c("Proportion of Explained Variance",
+                   "Proportion of Sparsity")
 
   x
 }
 
-pow20 <- gpower(A=data, 20, 0.1, center=FALSE, penalty = "l1")
-pow10 <- gpower(A=data, 10, 0.1, center=FALSE, penalty = "l1")
+# data <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
+#
+# pow20 <- gpower(A = data,
+#                 10,
+#                 0.1,
+#                 center = FALSE,
+#                 penalty = "l1")
