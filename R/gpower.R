@@ -27,7 +27,7 @@ source("R/pattern_filling.R")
 #'   gradient decent. In this implementation, a relative penalty is implemented
 #'   with rho. Gamma is calculated using rho and the maximal norm value.
 #'
-#' @param A Input matrix of size (p x n) with p < n.
+#' @param data Input matrix of size (p x n) with p < n.
 #' @param k Number of components, 0 < k < p.
 #' @param rho Relative sparsity weight factor of the optimization. Either a
 #'   vector of floats of size k or float which will be repeated k times. 0 < rho
@@ -47,33 +47,33 @@ source("R/pattern_filling.R")
 #'   1e-4.
 #'
 #' @return List containing: \describe{ \item{loadings}{The PCA components}
-#'   \item{scores}{Scores of the components on A} \item{a_approx}{Reconstructed
-#'   version of A using the components} \item{prop_sparse}{Proportion of
+#'   \item{scores}{Scores of the components on data} \item{a_approx}{Reconstructed
+#'   version of data using the components} \item{prop_sparse}{Proportion of
 #'   sparsity of the components} \item{exp_var}{Explained ratio of variance of
-#'   the components} \item{centers}{Centers of matrix A if center == TRUE} }
+#'   the components} \item{centers}{Centers of matrix data if center == TRUE} }
 #'
 #' @examples
 #' set.seed(360)
 #' p <- 20
 #' n <- 50
 #' k <- 5
-#' A <- scale(matrix(stats::rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
+#' data <- scale(matrix(stats::rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
 #' rho <- 0.1
 #' # rho <- c(0.1, 0.2, 0.1, 0.2, 0.1)
 #' mu <- 1
 #' # mu <- c(1, 1.5, 0.5, 2, 1)
 #'
 #' # Single unit with l1 penalty
-#' gpower(A, k, rho, 'l1', FALSE)
+#' gpower(data, k, rho, 'l1', FALSE)
 #'
 #' # Single unit with l0 penalty
-#' gpower(A, k, rho, 'l0', FALSE)
+#' gpower(data, k, rho, 'l0', FALSE)
 #'
 #' # Block with l1 penalty
-#' gpower(A, k, rho, 'l1', FALSE, TRUE, mu)
+#' gpower(data, k, rho, 'l1', FALSE, TRUE, mu)
 #'
 #' # Block with l0 penalty
-#' gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
+#' gpower(data, k, rho, 'l0', FALSE, TRUE, mu)
 #'
 #' @references Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
 #' Generalized Power Method for Sparse Principal Component Analysis. *Journal of
@@ -81,7 +81,7 @@ source("R/pattern_filling.R")
 #'
 #' @export
 gpower <-
-  function(A,
+  function(data,
            k,
            rho,
            penalty = c("l0", "l1"),
@@ -95,7 +95,7 @@ gpower <-
 
 #' @export
 gpower.default <-
-  function(A,
+  function(data,
            k,
            rho,
            penalty = "l1",
@@ -104,12 +104,12 @@ gpower.default <-
            mu = NA,
            iter_max = 1000,
            epsilon = 1e-4) {
-    A <- as.matrix(A)
+    data <- as.matrix(data)
 
 
     # Checks ------------------------------------------------------------------
 
-    if (any(is.na(A))) {
+    if (any(is.na(data))) {
       warning("Missing values are omitted: na.omit(X).")
       X <- stats::na.omit(X)
     }
@@ -126,13 +126,13 @@ gpower.default <-
     gpowerObj <- list(loadings = NULL,
                       scores = NULL)
 
-    p <- nrow(A)
-    n <- ncol(A)
+    p <- nrow(data)
+    n <- ncol(data)
 
     iter_max <- iter_max
     epsilon <- epsilon
 
-    Z <- matrix(0, nrow = n, ncol = k)
+    Z <- matrix(0, nrow = n, ncol = k, dimnames=list(colnames(data)))
 
     if (length(rho) == 1) {
       rho <- rep(rho, k)
@@ -144,11 +144,11 @@ gpower.default <-
     # Add centering
 
     if (center) {
-      A <- scale(A, scale = FALSE)
-      gpowerObj$centers <- attr(A, "scaled:center")
+      data <- scale(data, scale = FALSE)
+      gpowerObj$centers <- attr(data, "scaled:center")
     }
 
-    X <- A
+    X <- data
 
     # Single unit algorithm ---------------------------------------------------
 
@@ -168,6 +168,7 @@ gpower.default <-
           rho_c <- rho_c * rho_max
 
           # Initialisation
+          ## Allow for warm start
           x <- X[, i_max] / norm_a_i[i_max]
           f <- rep(0, iter_max)
           iter <- 1
@@ -554,13 +555,13 @@ gpower.default <-
 
 
     # Update gpower object ----------------------------------------------------
-    scores <- A %*% Z
-    P <- t(A) %*% MASS::ginv(t(scores))
-    A_approx <- scores %*% t(P)
+    scores <- data %*% Z
+    P <- t(data) %*% MASS::ginv(t(scores))
+    data_approx <- scores %*% t(P)
 
     gpowerObj$loadings <- Z
     gpowerObj$scores <- scores
-    gpowerObj$a_approx <- A_approx
+    gpowerObj$a_approx <- data_approx
     gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
 
     # Add component variance (p22)
@@ -574,8 +575,8 @@ gpower.default <-
 
     # Explained variance ratio
     gpowerObj$comp_var <- comp_var
-    gpowerObj$exp_var <- 1 - (norm((A - A_approx), type = "F") /
-                                norm(A, type = "F")) ^ 2
+    gpowerObj$exp_var <- 1 - (norm((data - data_approx), type = "F") /
+                                norm(data, type = "F")) ^ 2
 
     # Compare sum of adj var to explained var
 
@@ -616,7 +617,7 @@ summary.gpower <- function(object, ...) {
 
 # data <- as.matrix(read.csv("tests/testthat/data.csv", header = FALSE))
 #
-# pow20 <- gpower(A = data,
+# pow20 <- gpower(data = data,
 #                 10,
 #                 0.1,
 #                 center = FALSE,
