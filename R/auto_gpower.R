@@ -10,85 +10,77 @@ source("R/gpower.R")
 #' which is equal to zero.
 #' @inheritParams gpower
 #'
+#' @examples
+#' set.seed(360)
+#' p <- 20
+#' n <- 50
+#' k <- 5
+#' data <- matrix(stats::rnorm(p * n), nrow = p, ncol = n)
+#' prop_sparse <- 0.1
+#' mu <- 1
+#'
+#' auto_gpower(data, k, prop_sparse, penalty = 'l1', center = TRUE, block = FALSE)
+#'
 #' @export
-auto_gpower <- function(A,
-                        k,
-                        prop_sparse,
-                        penalty = c("l0", "l1"),
-                        center = c(TRUE, FALSE),
-                        block = c(TRUE, FALSE),
-                        mu = NA,
-                        iter_max = 1000,
-                        epsilon = 1e-4) {
-  UseMethod("auto_gpower")
+auto_gpower <- function(data, k, prop_sparse, penalty = c("l0", "l1"), center = c(TRUE, FALSE), block = c(TRUE, FALSE), mu = 1, iter_max = 1000, epsilon = 1e-04) {
+    UseMethod("auto_gpower")
 }
 
 
 #' @export
-auto_gpower.default <- function(A,
-                                k,
-                                prop_sparse,
-                                penalty = "l1",
-                                center = TRUE,
-                                block = FALSE,
-                                mu = NA,
-                                iter_max = 1000,
-                                epsilon = 1e-4) {
-  # Tunes rho to get desired proportion of sparsity
+auto_gpower.default <- function(data, k, prop_sparse, penalty = "l1", center = TRUE, block = FALSE, mu = 1, iter_max = 1000, epsilon = 1e-04) {
+    # Tunes rho to get desired proportion of sparsity
 
-  n <- ncol(A)
-  n_zeros_A <- floor(n * k * prop_sparse)
-  n_zeros_sparse <- 0
+    n <- ncol(data)
+    n_zeros_data <- floor(n * k * prop_sparse)
+    n_zeros_sparse <- 0
 
-  if (n_zeros_A == 0) {
-    # No sparsity
-    gpower(A, k, 0, penalty, block, mu, iter_max, epsilon)
-  }
+    if (n_zeros_data == 0) {
+        # No sparsity
+        gpower(data, k, 0, penalty, center, block, mu, iter_max, epsilon)
+    }
 
-  # Starting bounds of binary search
-  lower <- 0
-  if (penalty == "l0") {
-    upper <- max(norm(A, "2"))
-  }
-  if (penalty == "l1") {
-    upper <- max(norm(A, "2"))^2
-  }
-  i <- 0
-
-  while (n_zeros_A != n_zeros_sparse & iter_max > i) {
-    cut <- (lower + upper) / 2
-
+    # Starting bounds of binary search
+    lower <- 0
     if (penalty == "l0") {
-      gamma <- (cut^2)
+        upper <- max(norm(data, "2"))
     }
     if (penalty == "l1") {
-      gamma <- cut
+        upper <- max(norm(data, "2"))^2
     }
+    i <- 0
 
-    Z <- gpower(A, k, gamma, penalty, block, mu, iter_max, epsilon)
+    while (n_zeros_data != n_zeros_sparse & iter_max > i) {
+        cut <- (lower + upper)/2
 
-    n_zeros_sparse <- sum(rowSums(Z$loadings == 0))
+        if (penalty == "l0") {
+            gamma <- (cut^2)
+        }
+        if (penalty == "l1") {
+            gamma <- cut
+        }
+        Z <- tryCatch(gpower(data = data, k = k, rho = x, penalty = penalty, center = center, block = block, mu = mu), error = function(e) {
+            NULL
+        })
 
-    if (n_zeros_A > n_zeros_sparse) {
-      lower <- gamma
+        if (is.list(Z)) {
+            n_zeros_sparse <- sum(rowSums(Z$loadings == 0))
+
+            if (n_zeros_data > n_zeros_sparse) {
+                lower <- gamma
+            }
+            if (n_zeros_data < n_zeros_sparse) {
+                upper <- gamma
+            }
+        } else {
+            upper <- gamma
+        }
+
+
+
+        i <- i + 1
     }
-    if (n_zeros_A < n_zeros_sparse) {
-      upper <- gamma
-    }
+    cat("After", i, "iterations, rho", gamma, "achieves", prop_sparse, "proportion of sparseness", sep = " ")
 
-    i <- i + 1
-  }
-  cat(
-    "After",
-    i,
-    "iterations, rho",
-    gamma,
-    "achieves",
-    prop_sparse,
-    "proportion of sparseness",
-    sep = " "
-  )
-
-  Z
+    Z
 }
-

@@ -5,7 +5,7 @@
 \title{Compute Sparse PCA using GPower method}
 \usage{
 gpower(
-  A,
+  data,
   k,
   rho,
   penalty = c("l0", "l1"),
@@ -17,7 +17,7 @@ gpower(
 )
 }
 \arguments{
-\item{A}{Input matrix of size (p x n) with p < n.}
+\item{data}{Input matrix of size (p x n) with p < n.}
 
 \item{k}{Number of components, 0 < k < p.}
 
@@ -25,8 +25,8 @@ gpower(
 vector of floats of size k or float which will be repeated k times. 0 < rho
 < 1.}
 
-\item{penalty}{Penalty type to use in the optimization. Either "l0" or "l1".
-The default is "l1" since it performed best in experiments.}
+\item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
+The default is 'l1' since it performed best in experiments.}
 
 \item{center}{Centers the data. Either TRUE or FALSE. Default is TRUE.}
 
@@ -38,46 +38,40 @@ Default is FALSE.}
 of float of size k or a float which will be repeated k times. Only used if
 block is TRUE. Default is FALSE.}
 
-\item{iter_max}{Maximum iterations when adjusting components with
-gradient descent. Default is 1000.}
+\item{iter_max}{Maximum iterations when adjusting components with gradient
+descent. Default is 1000.}
 
 \item{epsilon}{Epsilon of the gradient descent stopping function. Default is
 1e-4.}
 }
 \value{
-List containing: \describe{
-\item{loadings}{The PCA components}
-\item{scores}{Scores of the components on A}
-\item{a_approx}{Reconstructed version of A using the components}
-\item{prop_sparse}{Proportion of sparsity of the components}
-\item{exp_var}{Explained ratio of variance of the components}
-\item{centers}{Centers of matrix A if center == TRUE}
-}
+List containing: \describe{ \item{loadings}{The PCA components}
+\item{scores}{Scores of the components on data} \item{a_approx}{Reconstructed
+version of data using the components} \item{prop_sparse}{Proportion of
+sparsity of the components} \item{exp_var}{Explained ratio of variance of
+the components} \item{centers}{Centers of matrix data if center == TRUE} }
 }
 \description{
-GPower uses four different optimization procedures for the four combinations
-between l0 and l1 penalty and single-unit or block computation. With the l0
-penalty, the cardinality of the solutions is penalized. The objective
-function of the single unit case with l1 penalty is
-\loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
-\sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}}
-where x represents the components and gamma is the penalty.
-For the single unit case with the l0 penalty, the following function is used
-\mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{
-\sum_{i=1}^{n}{\lbrack (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}}
-Where the results are squared before gamma is subtracted instead of after.
-For the block cases, the following functions are used. First the case with l1
-penalty
+GPower uses four different optimization procedures for the four
+combinations between l0 and l1 penalty and single-unit or block
+computation. With the l0 penalty, the cardinality of the solutions is
+penalized. The objective function of the single unit case with l1 penalty
+is \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
+\sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}} where x
+represents the components and gamma is the penalty. For the single unit
+case with the l0 penalty, the following function is used
+\mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{ \sum_{i=1}^{n}{\lbrack
+(a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}} Where the results are squared
+before gamma is subtracted instead of after. For the block cases, the
+following functions are used. First the case with l1 penalty
 \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
-\sum_{j=1}^{m}{\sum_{i=1}^{n}{
-\lbrack \mu_{j} |a_{i}^{T}x_{j}| - \gamma_{i} \rbrack_{+}^{2}}}}
-and for the l0 penalty
+\sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack \mu_{j} |a_{i}^{T}x_{j}| -
+\gamma_{i} \rbrack_{+}^{2}}}} and for the l0 penalty
 \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
-\sum_{j=1}^{m}{\sum_{i=1}^{n}{
-\lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} - \gamma_{i} \rbrack_{+}}}}
-All of these functions are optimized using gradient decent. In this
-implementation, a relative penalty is implemented with rho. Gamma is
-calculated using rho and the maximal norm value.
+\sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} -
+\gamma_{i} \rbrack_{+}}}} All of these functions are optimized using
+gradient decent. In this implementation, a relative penalty is implemented
+with rho. Gamma is calculated using rho and the maximal norm value.
 }
 \details{
 Generalized power method for sparse principal component analysis. Implements
@@ -89,27 +83,27 @@ set.seed(360)
 p <- 20
 n <- 50
 k <- 5
-A <- scale(matrix(stats::rnorm(p * n), nrow = p, ncol = n), scale = FALSE)
+data <- matrix(stats::rnorm(p * n), nrow = p, ncol = n)
 rho <- 0.1
 # rho <- c(0.1, 0.2, 0.1, 0.2, 0.1)
 mu <- 1
 # mu <- c(1, 1.5, 0.5, 2, 1)
 
 # Single unit with l1 penalty
-gpower(A, k, rho, 'l1', FALSE)
+gpower(data, k, rho, 'l1', TRUE)
 
 # Single unit with l0 penalty
-gpower(A, k, rho, 'l0', FALSE)
+gpower(data, k, rho, 'l0', TRUE)
 
 # Block with l1 penalty
-gpower(A, k, rho, 'l1', FALSE, TRUE, mu)
+gpower(data, k, rho, 'l1', TRUE, TRUE, mu)
 
 # Block with l0 penalty
-gpower(A, k, rho, 'l0', FALSE, TRUE, mu)
+gpower(data, k, rho, 'l0', TRUE, TRUE, mu)
 
 }
 \references{
 Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
-Generalized Power Method for Sparse Principal Component Analysis.
-\emph{Journal of Machine Learning Research. 11}, 517-553.
+Generalized Power Method for Sparse Principal Component Analysis. \emph{Journal of
+Machine Learning Research. 11}, 517-553.
 }

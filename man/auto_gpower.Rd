@@ -5,7 +5,7 @@
 \title{Find GPower rho for proportion of sparcity}
 \usage{
 auto_gpower(
-  A,
+  data,
   k,
   prop_sparse,
   penalty = c("l0", "l1"),
@@ -17,15 +17,15 @@ auto_gpower(
 )
 }
 \arguments{
-\item{A}{Input matrix of size (p x n) with p < n.}
+\item{data}{Input matrix of size (p x n) with p < n.}
 
 \item{k}{Number of components, 0 < k < p.}
 
 \item{prop_sparse}{the percentage of the total values of the loadings matrix
 which is equal to zero.}
 
-\item{penalty}{Penalty type to use in the optimization. Either "l0" or "l1".
-The default is "l1" since it performed best in experiments.}
+\item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
+The default is 'l1' since it performed best in experiments.}
 
 \item{center}{Centers the data. Either TRUE or FALSE. Default is TRUE.}
 
@@ -37,8 +37,8 @@ Default is FALSE.}
 of float of size k or a float which will be repeated k times. Only used if
 block is TRUE. Default is FALSE.}
 
-\item{iter_max}{Maximum iterations when adjusting components with
-gradient descent. Default is 1000.}
+\item{iter_max}{Maximum iterations when adjusting components with gradient
+descent. Default is 1000.}
 
 \item{epsilon}{Epsilon of the gradient descent stopping function. Default is
 1e-4.}
@@ -48,4 +48,16 @@ Using binary search find the value of rho for \code{\link{gpower}} for which
 the the proporting of values equal to zero is closest to the value of
 prop_sparse. It forwards the other settings to the \code{\link{gpower}}
 function.
+}
+\examples{
+set.seed(360)
+p <- 20
+n <- 50
+k <- 5
+data <- matrix(stats::rnorm(p * n), nrow = p, ncol = n)
+prop_sparse <- 0.1
+mu <- 1
+
+auto_gpower(data, k, prop_sparse, penalty = 'l1', center = TRUE, block = FALSE)
+
 }
