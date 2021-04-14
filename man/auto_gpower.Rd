@@ -11,7 +11,7 @@ auto_gpower(
   penalty = c("l0", "l1"),
   center = c(TRUE, FALSE),
   block = c(TRUE, FALSE),
-  mu = NA,
+  mu = 1,
   iter_max = 1000,
   epsilon = 1e-04
 )

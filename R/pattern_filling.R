@@ -6,7 +6,6 @@ pattern_filling <- function(A, pattern, Z = NA, mu = NA) {
     m <- ncol(pattern)
 
     # Single unit case ----------------------------------------------------------
-
     if (m == 1) {
         support <- pattern != 0
 
@@ -25,18 +24,19 @@ pattern_filling <- function(A, pattern, Z = NA, mu = NA) {
 
             while (TRUE) {
                 temp <- t(A_red) %*% (A_red %*% u)
-                u <- temp/norm(temp, "2")
+                u <- temp / norm(temp, "2")
                 f[iter] <- -2 * t(u) %*% temp
 
                 if (iter > 2) {
-                  # Stopping criteria
-                  if (abs(f[iter] - f[iter - 1])/abs(f[iter - 1]) < epsilon | iter > iter_max) {
-                    if (iter > iter_max) {
-                      print("Max iterations reached")
-                      break
+                    # Stopping criteria
+                    if (abs(f[iter] - f[iter - 1]) / abs(f[iter - 1]) < epsilon |
+                        iter > iter_max) {
+                        if (iter > iter_max) {
+                            print("Max iterations reached")
+                            break
+                        }
+                        break
                     }
-                    break
-                  }
                 }
 
                 iter <- iter + 1
@@ -80,17 +80,17 @@ pattern_filling <- function(A, pattern, Z = NA, mu = NA) {
             for (i in 1:m) {
                 norm_Z <- norm(Z[, i], "2")
                 if (norm_Z > 0) {
-                  Z[, i] <- Z[, i]/norm_Z
+                    Z[, i] <- Z[, i] / norm_Z
                 }
             }
 
             if (iter > 2) {
                 if (iter > iter_max) {
-                  print("Maximum number of iterations reached")
-                  break
+                    print("Maximum number of iterations reached")
+                    break
                 }
-                if (abs(f[iter] - f[iter - 1])/abs(f[iter - 1]) < epsilon) {
-                  break
+                if (abs(f[iter] - f[iter - 1]) / abs(f[iter - 1]) < epsilon) {
+                    break
                 }
             }
 
@@ -137,17 +137,17 @@ pattern_filling <- function(A, pattern, Z = NA, mu = NA) {
             for (i in 1:m) {
                 norm_Z <- norm(Z[, 1], "2")
                 if (norm_Z > 0) {
-                  Z[, i] <- Z[, i]/norm_Z
+                    Z[, i] <- Z[, i] / norm_Z
                 }
             }
 
             if (iter > 2) {
                 if (iter > iter_max) {
-                  print("Maximum number of iterations reached")
-                  break
+                    print("Maximum number of iterations reached")
+                    break
                 }
-                if (abs(f[iter] - f[iter - 1])/abs(f[iter - 1]) < epsilon) {
-                  break
+                if (abs(f[iter] - f[iter - 1]) / abs(f[iter - 1]) < epsilon) {
+                    break
                 }
             }
 

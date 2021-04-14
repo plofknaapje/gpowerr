@@ -6,8 +6,10 @@ source("R/gpower.R")
 #' prop_sparse. It forwards the other settings to the \code{\link{gpower}}
 #' function.
 #'
-#' @param prop_sparse the percentage of the total values of the loadings matrix
+#' @param prop_sparse The percentage of the total values of the loadings matrix
 #' which is equal to zero.
+#' @param accuracy The amound of digits to which to round prop_sparse and the
+#'   sparsity of the loadings
 #' @inheritParams gpower
 #'
 #' @examples
@@ -22,65 +24,108 @@ source("R/gpower.R")
 #' auto_gpower(data, k, prop_sparse, penalty = 'l1', center = TRUE, block = FALSE)
 #'
 #' @export
-auto_gpower <- function(data, k, prop_sparse, penalty = c("l0", "l1"), center = c(TRUE, FALSE), block = c(TRUE, FALSE), mu = 1, iter_max = 1000, epsilon = 1e-04) {
-    UseMethod("auto_gpower")
-}
+auto_gpower <-
+    function(data,
+             k,
+             prop_sparse,
+             accuracy = 2,
+             penalty = c("l0", "l1"),
+             center = c(TRUE, FALSE),
+             block = c(TRUE, FALSE),
+             mu = 1,
+             iter_max = 1000,
+             epsilon = 1e-04) {
+        UseMethod("auto_gpower")
+    }
 
 
 #' @export
-auto_gpower.default <- function(data, k, prop_sparse, penalty = "l1", center = TRUE, block = FALSE, mu = 1, iter_max = 1000, epsilon = 1e-04) {
-    # Tunes rho to get desired proportion of sparsity
+auto_gpower.default <-
+    function(data,
+             k,
+             prop_sparse,
+             accuracy = 2,
+             penalty = "l1",
+             center = TRUE,
+             block = FALSE,
+             mu = 1,
+             iter_max = 1000,
+             epsilon = 1e-04) {
+        # Tunes rho to get desired proportion of sparsity
 
-    n <- ncol(data)
-    n_zeros_data <- floor(n * k * prop_sparse)
-    n_zeros_sparse <- 0
+        n <- ncol(data)
+        prop_zeros_needed <- round(prop_sparse, accuracy)
+        prop_zeros_current <- 0
 
-    if (n_zeros_data == 0) {
-        # No sparsity
-        gpower(data, k, 0, penalty, center, block, mu, iter_max, epsilon)
-    }
-
-    # Starting bounds of binary search
-    lower <- 0
-    if (penalty == "l0") {
-        upper <- max(norm(data, "2"))
-    }
-    if (penalty == "l1") {
-        upper <- max(norm(data, "2"))^2
-    }
-    i <- 0
-
-    while (n_zeros_data != n_zeros_sparse & iter_max > i) {
-        cut <- (lower + upper)/2
-
-        if (penalty == "l0") {
-            gamma <- (cut^2)
+        if (prop_zeros_needed == 0) {
+            # No sparsity
+            gpower(data, k, 0, penalty, center, block, mu, iter_max, epsilon)
         }
-        if (penalty == "l1") {
-            gamma <- cut
+
+        if (block) {
+            max_iterations <- 500
+        } else {
+            max_iterations <- 100
         }
-        Z <- tryCatch(gpower(data = data, k = k, rho = x, penalty = penalty, center = center, block = block, mu = mu), error = function(e) {
-            NULL
-        })
+
+        # Starting bounds of binary search
+        lower <- 0
+        upper <- 1
+        i <- 0
+
+        while (prop_zeros_needed != prop_zeros_current & max_iterations > i) {
+            middle <- (lower + upper) / 2
+
+            Z <- tryCatch(
+                    gpower(
+                        data = data,
+                        k = k,
+                        rho = middle,
+                        penalty = penalty,
+                        center = center,
+                        block = block,
+                        mu = mu,
+                        iter_max = iter_max,
+                        epsilon = epsilon
+                    ),
+                    error = function(e) {
+                        NULL
+                    }
+                )
+
+            if (is.list(Z)) {
+                prop_zeros_current <- round(sum(rowSums(Z$loadings == 0))/(n*k), accuracy)
+
+                if (prop_zeros_needed > prop_zeros_current) {
+                    lower <- middle
+                }
+                if (prop_zeros_needed < prop_zeros_current) {
+                    upper <- middle
+                }
+                if (prop_zeros_needed == prop_zeros_current) {
+                    break
+                }
+            } else {
+                upper <- middle
+            }
+            i <- i + 1
+        }
 
         if (is.list(Z)) {
-            n_zeros_sparse <- sum(rowSums(Z$loadings == 0))
+            cat(
+                "After",
+                i,
+                "iterations, rho",
+                round(middle, 5),
+                "achieves",
+                round(sum(rowSums(Z$loadings == 0))/(n*k), accuracy),
+                "Proportion of Sparseness\n\n",
+                sep = " "
+            )
 
-            if (n_zeros_data > n_zeros_sparse) {
-                lower <- gamma
-            }
-            if (n_zeros_data < n_zeros_sparse) {
-                upper <- gamma
-            }
+            Z
         } else {
-            upper <- gamma
+            warning("Unable to find a suitable rho for specified prop_sparse")
         }
-
-
-
-        i <- i + 1
     }
-    cat("After", i, "iterations, rho", gamma, "achieves", prop_sparse, "proportion of sparseness", sep = " ")
 
-    Z
-}

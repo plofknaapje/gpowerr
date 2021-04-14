@@ -35,7 +35,7 @@ source("R/pattern_filling.R")
 #' @param penalty Penalty type to use in the optimization. Either 'l0' or 'l1'.
 #'   The default is 'l1' since it performed best in experiments.
 #' @param center Centers the data. Either TRUE or FALSE. Default is TRUE.
-#' @param block Optimization method. If FALSE, the components are calculated
+#' @param block If FALSE, the components are calculated
 #'   individually. If TRUE, all components are calculated at the same time.
 #'   Default is FALSE.
 #' @param mu Mean to be applied to each component in the block. Either a vector
@@ -80,475 +80,519 @@ source("R/pattern_filling.R")
 #' Machine Learning Research. 11*, 517-553.
 #'
 #' @export
-gpower <- function(data, k, rho, penalty = c("l0", "l1"), center = c(TRUE, FALSE), block = c(TRUE, FALSE), mu = 1 , iter_max = 1000, epsilon = 1e-04) {
-    UseMethod("gpower")
-}
+gpower <-
+    function(data,
+             k,
+             rho,
+             penalty = c("l0", "l1"),
+             center = c(TRUE, FALSE),
+             block = c(TRUE, FALSE),
+             mu = 1 ,
+             iter_max = 1000,
+             epsilon = 1e-04) {
+        UseMethod("gpower")
+    }
 
 #' @export
-gpower.default <- function(data, k, rho, penalty = "l1", center = TRUE, block = FALSE, mu = 1, iter_max = 1000, epsilon = 1e-04) {
-    data <- as.matrix(data)
+gpower.default <-
+    function(data,
+             k,
+             rho,
+             penalty = "l1",
+             center = TRUE,
+             block = FALSE,
+             mu = 1,
+             iter_max = 1000,
+             epsilon = 1e-04) {
+        data <- as.matrix(data)
 
 
-    # Checks ------------------------------------------------------------------
+        # Checks ------------------------------------------------------------------
 
-    if (any(is.na(data))) {
-        warning("Missing values are omitted: na.omit(X).")
-        X <- stats::na.omit(X)
-    }
+        if (any(is.na(data))) {
+            warning("Missing values are omitted: na.omit(X).")
+            X <- stats::na.omit(X)
+        }
 
-    if (any(is.na(rho))) {
-        warning("NA found in rho")
-    }
+        if (any(is.na(rho))) {
+            warning("NA found in rho")
+        }
 
-    if (block == 1 & any(is.na(mu))) {
-        warning("Mu needs to be defined for Block algoritm")
-    }
+        if (block == 1 & any(is.na(mu))) {
+            warning("Mu needs to be defined for Block algoritm")
+        }
 
-    picked <- FALSE
+        picked <- FALSE
 
-    # Initialize gpower object ------------------------------------------------
-    gpowerObj <- list(loadings = NULL, scores = NULL)
+        # Initialize gpower object ------------------------------------------------
+        gpowerObj <- list(loadings = NULL, scores = NULL)
 
-    p <- nrow(data)
-    n <- ncol(data)
+        p <- nrow(data)
+        n <- ncol(data)
 
-    iter_max <- iter_max
-    epsilon <- epsilon
+        iter_max <- iter_max
+        epsilon <- epsilon
 
-    Z <- matrix(0, nrow = n, ncol = k, dimnames = list(colnames(data)))
+        Z <-
+            matrix(0,
+                   nrow = n,
+                   ncol = k,
+                   dimnames = list(colnames(data)))
 
-    if (length(rho) == 1) {
-        rho <- rep(rho, k)
-    }
+        if (length(rho) == 1) {
+            rho <- rep(rho, k)
+        }
 
-    if (length(mu) == 1 & !any(is.na(mu))) {
-        mu <- rep(mu, k)
-    }
-    # Add centering
+        if (length(mu) == 1 & !any(is.na(mu))) {
+            mu <- rep(mu, k)
+        }
+        # Add centering
 
-    if (center) {
-        data <- scale(data, scale = FALSE)
-        gpowerObj$centers <- attr(data, "scaled:center")
-    }
+        if (center) {
+            data <- scale(data, scale = FALSE)
+            gpowerObj$centers <- attr(data, "scaled:center")
+        }
 
-    X <- data
+        X <- data
 
-    # Single unit algorithm ---------------------------------------------------
+        # Single unit algorithm ---------------------------------------------------
 
-    if (!picked & (k == 1 | (k > 1 & !block))) {
+        if (!picked & (k == 1 | (k > 1 & !block))) {
+            if (penalty == "l1") {
+                for (c in 1:k) {
+                    # Loop on the components
+                    norm_a_i <- rep(0, n)
 
-        if (penalty == "l1") {
-            for (c in 1:k) {
-                # Loop on the components
-                norm_a_i <- rep(0, n)
+                    for (i in 1:n) {
+                        norm_a_i[i] <- norm(X[, i], "2")
+                    }
 
-                for (i in 1:n) {
-                  norm_a_i[i] <- norm(X[, i], "2")
+                    rho_max <- max(norm_a_i)
+                    i_max <- which.max(norm_a_i)
+                    rho_c <- rho[c] * rho_max
+
+                    # Initialisation Allow for warm start
+                    x <- X[, i_max] / norm_a_i[i_max]
+                    f <- rep(0, iter_max)
+                    iter <- 1
+
+                    while (TRUE) {
+                        X_x <- t(X) %*% x
+                        t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
+
+                        # Cost function
+                        f[iter] <- sum(t_resh ^ 2)
+
+                        if (f[iter] == 0) {
+                            # Sparsity is too high
+                            warning("Sparcity is set to high, all entries of loading vector are zero")
+                            break
+                        } else {
+                            gradient <- X %*% t_resh
+                            x <- gradient / norm(gradient, "2")
+                        }
+
+                        if (iter > 2) {
+                            # Stopping criteria
+                            if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
+                                iter > iter_max) {
+                                if (iter > iter_max) {
+                                    print("Max iterations reached")
+                                    break
+                                }
+                                break
+                            }
+                        }
+
+                        iter <- iter + 1
+                    }
+
+                    X_x <- t(X) %*% x
+                    pattern <-
+                        (abs(X_x) - rho_c) > 0  # Pattern of sparsity
+                    z <- sign(X_x) * max(abs(X_x) - rho_c, 0)
+
+                    if (max(abs(z > 0))) {
+                        z <- z / norm(z, "2")
+                    }
+
+                    z <- pattern_filling(X, pattern, z)
+                    y <- X %*% z
+                    X <- X - y %*% z
+                    Z[, c] <- z
                 }
+            } else if (penalty == "l0") {
+                for (c in 1:k) {
+                    # Loop on the components
+                    rho_c <- rho[c]
+                    norm_a_i <- rep(0, n)
 
-                rho_max <- max(norm_a_i)
-                i_max <- which.max(norm_a_i)
-                rho_c <- rho[c] * rho_max
+                    for (i in 1:n) {
+                        norm_a_i[i] <- norm(X[, i], "2")
+                    }
 
-                # Initialisation Allow for warm start
-                x <- X[, i_max]/norm_a_i[i_max]
-                f <- rep(0, iter_max)
-                iter <- 1
+                    rho_max <- max(norm_a_i)
+                    i_max <- which.max(norm_a_i)
+                    rho_c <- rho_c * rho_max ^ 2
+
+                    # Initialisation
+                    x <- X[, i_max] / norm_a_i[i_max]
+                    f <- rep(0, iter_max)
+                    iter <- 1
+
+                    while (TRUE) {
+                        X_x <- t(X) %*% x
+                        t_resh <- pmax(X_x ^ 2 - rho_c, 0)
+
+                        # Cost function
+                        f[iter] <- sum(t_resh)
+
+                        if (f[iter] == 0) {
+                            # Sparsity is too high
+                            warning("Sparcity is set to high, all entries of loading vector are zero")
+                            break
+                        } else {
+                            gradient <- X %*% ((t_resh > 0) * X_x)
+                            x <- gradient / norm(gradient, "2")
+                        }
+
+                        if (iter > 2) {
+                            # Stopping criteria
+                            if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
+                                iter > iter_max) {
+                                if (iter > iter_max) {
+                                    print("Max iterations reached")
+                                    break
+                                }
+                                break
+                            }
+                        }
+
+                        iter <- iter + 1
+                    }
+
+                    pattern <-
+                        ((t(X) %*% x) ^ 2 - rho_c > 0)  # Pattern of sparsity
+                    y <- x
+                    pattern_inv <- pattern == 0
+
+                    z <- t(X) %*% y
+                    z[pattern_inv] <- 0
+                    norm_z <- norm(z, "2")
+                    z <- z / norm_z
+                    y <- y * norm_z
+
+                    # Deflate
+                    X <- X - y %*% t(z)
+                    Z[, c] <- z
+                }
+            } else {
+                warning("Penalty not recognized")
+            }
+            picked <- TRUE
+        }
+
+        # Block algorithm with mu = 1 ---------------------------------------------
+        if (!picked & (k > 1 & block & sum(mu == 1) == length(mu))) {
+            norm_a_i <- rep(0, n)
+
+            for (i in 1:n) {
+                norm_a_i[i] <- norm(X[, i], "2")
+            }
+
+            i_max <- which.max(norm_a_i)
+
+            # Initialization
+
+            qr_decomp <-
+                qr(cbind(X[, i_max] / norm_a_i[i_max], matrix(stats::rnorm(p * (
+                    k - 1
+                )), nrow = p)), LAPACK = T)  # LAPACK to get MatLab qr(X, 0) results
+
+            x <- qr.Q(qr_decomp)
+            rho_max <- qr.R(qr_decomp)
+
+
+            f <- rep(0, iter_max)
+            iter <- 1
+
+            if (penalty == "l1") {
+                rho <- rho %*% rho_max
 
                 while (TRUE) {
-                  X_x <- t(X) %*% x
-                  t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
+                    X_x <- t(X) %*% x
+                    t_resh <-
+                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
+                    f[iter] <- sum(t_resh ^ 2)
 
-                  # Cost function
-                  f[iter] <- sum(t_resh^2)
-
-                  if (f[iter] == 0) {
-                    # Sparsity is too high
-                    warning("Sparcity is set to high, all entries of loading vector are zero")
-                    break
-                  } else {
-                    gradient <- X %*% t_resh
-                    x <- gradient/norm(gradient, "2")
-                  }
-
-                  if (iter > 2) {
-                    # Stopping criteria
-                    if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon | iter > iter_max) {
-                      if (iter > iter_max) {
-                        print("Max iterations reached")
+                    if (f[iter] == 0) {
+                        warning("Sparcity is set to high, all entries of loading vector are zero")
                         break
-                      }
-                      break
-                    }
-                  }
+                    } else {
+                        gradient <- matrix(rep(0, p * k), nrow = p)
 
-                  iter <- iter + 1
+                        for (i in 1:k) {
+                            pattern <- t(t_resh[, i]) > 0
+                            gradient[, i] <-
+                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+                        }
+
+                        svd_decomp <- svd(gradient)
+                        x <- svd_decomp$u %*% t(svd_decomp$v)
+                    }
+
+                    if (iter > 2) {
+                        if (iter > iter_max) {
+                            print("Max iterations reached")
+                            break
+                        }
+                        if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+                            break
+                        }
+                    }
+                    iter <- iter + 1
                 }
 
                 X_x <- t(X) %*% x
-                pattern <- (abs(X_x) - rho_c) > 0  # Pattern of sparsity
-                z <- sign(X_x) * max(abs(X_x) - rho_c, 0)
 
-                if (max(abs(z > 0))) {
-                  z <- z/norm(z, "2")
+                for (i in 1:k) {
+                    Z[, i] <- sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
+                    if (max(abs(Z[, i]) > 0) > 0) {
+                        Z[, i] <- Z[, i] / norm(Z[, i], "2")
+                    }
                 }
 
-                z <- pattern_filling(X, pattern, z)
-                y <- X %*% z
-                X <- X - y %*% z
-                Z[, c] <- z
-            }
-        } else if (penalty == "l0") {
-            for (c in 1:k) {
-                # Loop on the components
-                rho_c <- rho[c]
-                norm_a_i <- rep(0, n)
-
-                for (i in 1:n) {
-                  norm_a_i[i] <- norm(X[, i], "2")
-                }
-
-                rho_max <- max(norm_a_i)
-                i_max <- which.max(norm_a_i)
-                rho_c <- rho_c * rho_max^2
-
-                # Initialisation
-                x <- X[, i_max]/norm_a_i[i_max]
-                f <- rep(0, iter_max)
-                iter <- 1
+                pattern <-
+                    abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
+                Z <- pattern_filling(X, pattern, Z, mu)
+            } else if (penalty == "l0") {
+                rho <- rho %*% (rho_max ^ 2)
 
                 while (TRUE) {
-                  X_x <- t(X) %*% x
-                  t_resh <- pmax(X_x^2 - rho_c, 0)
-
-                  # Cost function
-                  f[iter] <- sum(t_resh)
-
-                  if (f[iter] == 0) {
-                    # Sparsity is too high
-                    warning("Sparcity is set to high, all entries of loading vector are zero")
-                    break
-                  } else {
-                    gradient <- X %*% ((t_resh > 0) * X_x)
-                    x <- gradient/norm(gradient, "2")
-                  }
-
-                  if (iter > 2) {
-                    # Stopping criteria
-                    if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon | iter > iter_max) {
-                      if (iter > iter_max) {
-                        print("Max iterations reached")
+                    X_x <- t(X) %*% x
+                    t_resh <-
+                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
+                    f[iter] <- sum(sum(t_resh))
+                    if (f[iter] == 0) {
+                        warning("Sparcity is set to high, all entries of loading vector are zero")
                         break
-                      }
-                      break
-                    }
-                  }
+                    } else {
+                        gradient <- matrix(rep(0, p * k), nrow = p)
 
-                  iter <- iter + 1
+                        for (i in 1:k) {
+                            pattern <- t(t_resh[, i]) > 0
+                            gradient[, i] <-
+                                X[, pattern] %*% X_x[pattern, i]
+                        }
+
+                        svd_decomp <- svd(gradient)
+                        x <- svd_decomp$u %*% t(svd_decomp$v)
+                    }
+
+                    if (iter > 2) {
+                        if (iter > iter_max) {
+                            print("Max iterations reached")
+                            break
+                        }
+                        if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+                            break
+                        }
+                    }
+                    iter <- iter + 1
                 }
 
-                pattern <- ((t(X) %*% x)^2 - rho_c > 0)  # Pattern of sparsity
-                y <- x
+                pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
                 pattern_inv <- pattern == 0
+                Z <- X_x
+                Z[pattern_inv] <- 0
+                norm_z <- rep(0, k)
 
-                z <- t(X) %*% y
-                z[pattern_inv] <- 0
-                norm_z <- norm(z, "2")
-                z <- z/norm_z
-                y <- y * norm_z
-
-                # Deflate
-                X <- X - y %*% t(z)
-                Z[, c] <- z
+                for (i in 1:k) {
+                    norm_z[i] <- norm(Z[, i], "2")
+                    if (norm_z[i] > 0) {
+                        Z[, i] <- Z[, i] / norm_z[i]
+                    }
+                }
+            } else {
+                warning("Penalty not recognized")
             }
-        } else {
-            warning("Penalty not recognized")
-        }
-        picked <- TRUE
-    }
-
-    # Block algorithm with mu = 1 ---------------------------------------------
-    if (!picked & (k > 1 & block & sum(mu == 1) == length(mu))) {
-        norm_a_i <- rep(0, n)
-
-        for (i in 1:n) {
-            norm_a_i[i] <- norm(X[, i], "2")
+            picked <- TRUE
         }
 
-        i_max <- which.max(norm_a_i)
+        # Block algorithm with mu != 1 ---------------------------------------------
+        if (!picked & (k > 1 & block & sum(mu == 1) < length(mu))) {
+            norm_a_i <- rep(0, n)
 
-        # Initialization
-
-        qr_decomp <- qr(cbind(X[, i_max]/norm_a_i[i_max], matrix(stats::rnorm(p * (k - 1)), nrow = p)), LAPACK = T)  # LAPACK to get MatLab qr(X, 0) results
-
-        x <- qr.Q(qr_decomp)
-        rho_max <- qr.R(qr_decomp)
-
-
-        f <- rep(0, iter_max)
-        iter <- 1
-
-        if (penalty == "l1") {
-            rho <- rho %*% rho_max
-
-            while (TRUE) {
-                X_x <- t(X) %*% x
-                t_resh <- pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
-                f[iter] <- sum(t_resh^2)
-
-                if (f[iter] == 0) {
-                  warning("Sparcity is set to high, all entries of loading vector are zero")
-                  break
-                } else {
-                  gradient <- matrix(rep(0, p * k), nrow = p)
-
-                  for (i in 1:k) {
-                    pattern <- t(t_resh[, i]) > 0
-                    gradient[, i] <- X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
-                  }
-
-                  svd_decomp <- svd(gradient)
-                  x <- svd_decomp$u %*% t(svd_decomp$v)
-                }
-
-                if (iter > 2) {
-                  if (iter > iter_max) {
-                    print("Max iterations reached")
-                    break
-                  }
-                  if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon) {
-                    break
-                  }
-                }
-                iter <- iter + 1
+            for (i in 1:n) {
+                norm_a_i[i] <- norm(X[, i], "2")
             }
 
-            X_x <- t(X) %*% x
+            i_max <- which.max(norm_a_i)
 
-            for (i in 1:k) {
-                Z[, i] <- sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
-                if (max(abs(Z[, i]) > 0) > 0) {
-                  Z[, i] <- Z[, i]/norm(Z[, i], "2")
+            # Initialization
+
+            qr_decomp <-
+                qr(cbind(X[, i_max] / norm_a_i[i_max], matrix(stats::rnorm(p * (
+                    k - 1
+                )), nrow = p)), LAPACK = T)  # LAPACK to get MatLab qr(X, 0) results
+
+            x <- qr.Q(qr_decomp)
+            rho_max <- qr.R(qr_decomp)
+
+
+            f <- rep(0, iter_max)
+            iter <- 1
+
+            if (penalty == "l1") {
+                rho <- rho * mu %*% rho_max
+
+                while (TRUE) {
+                    X_x <- t(X) %*% x
+
+                    for (i in 1:k) {
+                        X_x[, i] <- X_x[, i] * mu[i]
+                    }
+
+                    t_resh <-
+                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
+                    f[iter] <- sum(t_resh ^ 2)
+
+                    if (f[iter] == 0) {
+                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        break
+                    } else {
+                        gradient <- matrix(rep(0, p * k), nrow = p)
+
+                        for (i in 1:k) {
+                            pattern <- t(t_resh[, i]) > 0
+                            gradient[, i] <-
+                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+                        }
+
+                        svd_decomp <- svd(gradient)
+                        x <- svd_decomp$u %*% t(svd_decomp$v)
+                    }
+
+                    if (iter > 2) {
+                        if (iter > iter_max) {
+                            print("Max iterations reached")
+                            break
+                        }
+                        if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+                            break
+                        }
+                    }
+                    iter <- iter + 1
                 }
-            }
 
-            pattern <- abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
-            Z <- pattern_filling(X, pattern, Z, mu)
-        } else if (penalty == "l0") {
-            rho <- rho %*% (rho_max^2)
-
-            while (TRUE) {
-                X_x <- t(X) %*% x
-                t_resh <- pmax(X_x^2 - kronecker(matrix(1, n, 1), rho))
-                f[iter] <- sum(sum(t_resh))
-                if (f[iter] == 0) {
-                  warning("Sparcity is set to high, all entries of loading vector are zero")
-                  break
-                } else {
-                  gradient <- matrix(rep(0, p * k), nrow = p)
-
-                  for (i in 1:k) {
-                    pattern <- t(t_resh[, i]) > 0
-                    gradient[, i] <- X[, pattern] %*% X_x[pattern, i]
-                  }
-
-                  svd_decomp <- svd(gradient)
-                  x <- svd_decomp$u %*% t(svd_decomp$v)
-                }
-
-                if (iter > 2) {
-                  if (iter > iter_max) {
-                    print("Max iterations reached")
-                    break
-                  }
-                  if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon) {
-                    break
-                  }
-                }
-                iter <- iter + 1
-            }
-
-            pattern <- (X_x^2 - kronecker(matrix(1, n, 1), rho)) > 0
-            pattern_inv <- pattern == 0
-            Z <- X_x
-            Z[pattern_inv] <- 0
-            norm_z <- rep(0, k)
-
-            for (i in 1:k) {
-                norm_z[i] <- norm(Z[, i], "2")
-                if (norm_z[i] > 0) {
-                  Z[, i] <- Z[, i]/norm_z[i]
-                }
-            }
-        } else {
-            warning("Penalty not recognized")
-        }
-        picked <- TRUE
-    }
-
-    # Block algorithm with mu != 1 ---------------------------------------------
-    if (!picked & (k > 1 & block & sum(mu == 1) < length(mu))) {
-        norm_a_i <- rep(0, n)
-
-        for (i in 1:n) {
-            norm_a_i[i] <- norm(X[, i], "2")
-        }
-
-        i_max <- which.max(norm_a_i)
-
-        # Initialization
-
-        qr_decomp <- qr(cbind(X[, i_max]/norm_a_i[i_max], matrix(stats::rnorm(p * (k - 1)), nrow = p)), LAPACK = T)  # LAPACK to get MatLab qr(X, 0) results
-
-        x <- qr.Q(qr_decomp)
-        rho_max <- qr.R(qr_decomp)
-
-
-        f <- rep(0, iter_max)
-        iter <- 1
-
-        if (penalty == "l1") {
-            rho <- rho * mu %*% rho_max
-
-            while (TRUE) {
                 X_x <- t(X) %*% x
 
                 for (i in 1:k) {
-                  X_x[, i] <- X_x[, i] * mu[i]
+                    X_x[, i] <- X_x[, i] * mu[i]
+                    Z[, i] <-
+                        sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
+                    if (max(abs(Z[, i]) > 0) > 0) {
+                        Z[, i] <- Z[, i] / norm(Z[, i], "2")
+                    }
                 }
 
-                t_resh <- pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
-                f[iter] <- sum(t_resh^2)
+                pattern <-
+                    abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
+                Z <- pattern_filling(X, pattern, Z, mu)
+            } else if (penalty == "l0") {
+                rho <- rho * (mu %*% rho_max) ^ 2
 
-                if (f[iter] == 0) {
-                  warning("Sparcity is set to high, all entries of loading vector are zero")
-                  break
-                } else {
-                  gradient <- matrix(rep(0, p * k), nrow = p)
+                while (TRUE) {
+                    X_x <- t(X) %*% x
 
-                  for (i in 1:k) {
-                    pattern <- t(t_resh[, i]) > 0
-                    gradient[, i] <- X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
-                  }
+                    for (i in 1:k) {
+                        X_x[, i] <- X_x[, i] * mu[i]
+                    }
 
-                  svd_decomp <- svd(gradient)
-                  x <- svd_decomp$u %*% t(svd_decomp$v)
+                    t_resh <-
+                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
+                    f[iter] <- sum(sum(t_resh))
+                    if (f[iter] == 0) {
+                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        break
+                    } else {
+                        gradient <- matrix(rep(0, p * k), nrow = p)
+
+                        for (i in 1:k) {
+                            pattern <- t(t_resh[, i]) > 0
+                            gradient[, i] <-
+                                X[, pattern] %*% X_x[pattern, i]
+                        }
+
+                        svd_decomp <- svd(gradient)
+                        x <- svd_decomp$u %*% t(svd_decomp$v)
+                    }
+
+                    if (iter > 2) {
+                        if (iter > iter_max) {
+                            print("Max iterations reached")
+                            break
+                        }
+                        if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
+                            break
+                        }
+                    }
+                    iter <- iter + 1
                 }
 
-                if (iter > 2) {
-                  if (iter > iter_max) {
-                    print("Max iterations reached")
-                    break
-                  }
-                  if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon) {
-                    break
-                  }
-                }
-                iter <- iter + 1
-            }
-
-            X_x <- t(X) %*% x
-
-            for (i in 1:k) {
-                X_x[, i] <- X_x[, i] * mu[i]
-                Z[, i] <- sign(X_x[, i]) * max(abs(X_x[, i]) - rho[i], 0)
-                if (max(abs(Z[, i]) > 0) > 0) {
-                  Z[, i] <- Z[, i]/norm(Z[, i], "2")
-                }
-            }
-
-            pattern <- abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
-            Z <- pattern_filling(X, pattern, Z, mu)
-        } else if (penalty == "l0") {
-            rho <- rho * (mu %*% rho_max)^2
-
-            while (TRUE) {
                 X_x <- t(X) %*% x
+                for (i in 1:k) {
+                    X_x[, i] <- X_x[, i] * mu[i]
+                }
+
+                pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
+                pattern_inv <- pattern == 0
+                Z <- t(X) %*% x
+                Z[pattern_inv] <- 0
+                norm_z <- rep(0, k)
 
                 for (i in 1:k) {
-                  X_x[, i] <- X_x[, i] * mu[i]
+                    norm_z[i] <- norm(Z[, i], "2")
+                    if (norm_z[i] > 0) {
+                        Z[, i] <- Z[, i] / norm_z[i]
+                    }
                 }
-
-                t_resh <- pmax(X_x^2 - kronecker(matrix(1, n, 1), rho))
-                f[iter] <- sum(sum(t_resh))
-                if (f[iter] == 0) {
-                  warning("Sparcity is set to high, all entries of loading vector are zero")
-                  break
-                } else {
-                  gradient <- matrix(rep(0, p * k), nrow = p)
-
-                  for (i in 1:k) {
-                    pattern <- t(t_resh[, i]) > 0
-                    gradient[, i] <- X[, pattern] %*% X_x[pattern, i]
-                  }
-
-                  svd_decomp <- svd(gradient)
-                  x <- svd_decomp$u %*% t(svd_decomp$v)
-                }
-
-                if (iter > 2) {
-                  if (iter > iter_max) {
-                    print("Max iterations reached")
-                    break
-                  }
-                  if ((f[iter] - f[iter - 1])/f[iter - 1] < epsilon) {
-                    break
-                  }
-                }
-                iter <- iter + 1
+            } else {
+                warning("Penalty not recognized")
             }
-
-            X_x <- t(X) %*% x
-            for (i in 1:k) {
-                X_x[, i] <- X_x[, i] * mu[i]
-            }
-
-            pattern <- (X_x^2 - kronecker(matrix(1, n, 1), rho)) > 0
-            pattern_inv <- pattern == 0
-            Z <- t(X) %*% x
-            Z[pattern_inv] <- 0
-            norm_z <- rep(0, k)
-
-            for (i in 1:k) {
-                norm_z[i] <- norm(Z[, i], "2")
-                if (norm_z[i] > 0) {
-                  Z[, i] <- Z[, i]/norm_z[i]
-                }
-            }
-        } else {
-            warning("Penalty not recognized")
+            picked <- TRUE
         }
-        picked <- TRUE
+
+
+        # Update gpower object ----------------------------------------------------
+        scores <- data %*% Z
+        P <- t(data) %*% MASS::ginv(t(scores))
+        data_approx <- scores %*% t(P)
+
+        gpowerObj$loadings <- Z
+        gpowerObj$scores <- scores
+        gpowerObj$a_approx <- data_approx
+        gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
+
+        # Add component variance (p22)
+        AdjVar <- qr.R(qr(scores)) ^ 2
+
+        ### Extract values on the diagonal
+        comp_var <- rep(NA, k)
+        for (i in 1:k) {
+            comp_var[i] <- AdjVar[i, i]
+        }
+
+        # Explained variance ratio
+        gpowerObj$comp_var <- sort(comp_var, decreasing = TRUE)
+        gpowerObj$exp_var <-
+            1 - (norm((data - data_approx), type = "F") / norm(data, type = "F")) ^
+            2
+
+        class(gpowerObj) <- "gpower"
+
+        gpowerObj
     }
-
-
-    # Update gpower object ----------------------------------------------------
-    scores <- data %*% Z
-    P <- t(data) %*% MASS::ginv(t(scores))
-    data_approx <- scores %*% t(P)
-
-    gpowerObj$loadings <- Z
-    gpowerObj$scores <- scores
-    gpowerObj$a_approx <- data_approx
-    gpowerObj$prop_sparse <- sum(rowSums(Z == 0))/(n * k)
-
-    # Add component variance (p22)
-    AdjVar <- qr.R(qr(scores))^2
-
-    ### Extract values on the diagonal
-    comp_var <- rep(NA, k)
-    for (i in 1:k) {
-        comp_var[i] <- AdjVar[i, i]
-    }
-
-    # Explained variance ratio
-    gpowerObj$comp_var <- sort(comp_var, decreasing=TRUE)
-    gpowerObj$exp_var <- 1 - (norm((data - data_approx), type = "F")/norm(data, type = "F"))^2
-
-    class(gpowerObj) <- "gpower"
-
-    gpowerObj
-}
 
 
 #' @export
@@ -568,10 +612,14 @@ summary.gpower <- function(object, ...) {
     # Summary gpower ------------------------------------------------------------
 
 
-    x <- t(data.frame(var = round(object$exp_var, 3), prop_sparse = round(object$prop_sparse, 3)))
+    x <-
+        t(data.frame(
+            var = round(object$exp_var, 3),
+            prop_sparse = round(object$prop_sparse, 3)
+        ))
 
-    rownames(x) <- c("Proportion of Explained Variance", "Proportion of Sparsity")
+    rownames(x) <-
+        c("Proportion of Explained Variance", "Proportion of Sparsity")
 
     x
 }
-
