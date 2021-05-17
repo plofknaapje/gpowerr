@@ -353,7 +353,11 @@ gpower_comp_var_plot <-
 #'   k = 5,
 #'   rho = 0.1,
 #'   penalty = 'l1',
-#'   center = TRUE
+#'   center = TRUE,
+#'   block = FALSE,
+#'   mu = 1,
+#'   cluster_variables = FALSE,
+#'   show_variable_names = TRUE
 #' )
 #' @export
 gpower_component_heatmap <-
@@ -363,7 +367,25 @@ gpower_component_heatmap <-
              penalty = "l1",
              center = TRUE,
              block = FALSE,
-             mu = 1) {
+             mu = 1,
+             variable_highlight = NA,
+             cluster_variables = FALSE,
+             show_variable_names = TRUE) {
+        # Add custom colorbrew
         pow <- gpower(data, k, rho, penalty, center, block, mu)
-        stats::heatmap(pow$loadings, Colv = NA)
+        if (any(is.na(variable_highlight))){
+            pheatmap::pheatmap(pow$loadings, cluster_cols = FALSE,
+                               cluster_rows = cluster_variables,
+                               show_rownames = show_variable_names,
+                               main = "Heatmap of GPower component weights")
+        } else {
+            pheatmap::pheatmap(pow$loadings, cluster_cols = FALSE,
+                               cluster_rows = cluster_variables,
+                               show_rownames = show_variable_names,
+                               annotation_row = variable_highlight,
+                               main = "Heatmap of GPower component weights",
+                               annotation_names_row = FALSE)
+        }
+
+        # Add legend!!!
     }

@@ -8,6 +8,7 @@ auto_gpower(
   data,
   k,
   prop_sparse,
+  accuracy = 2,
   penalty = c("l0", "l1"),
   center = c(TRUE, FALSE),
   block = c(TRUE, FALSE),
@@ -21,8 +22,11 @@ auto_gpower(
 
 \item{k}{Number of components, 0 < k < p.}
 
-\item{prop_sparse}{the percentage of the total values of the loadings matrix
+\item{prop_sparse}{The percentage of the total values of the loadings matrix
 which is equal to zero.}
+
+\item{accuracy}{The amound of digits to which to round prop_sparse and the
+sparsity of the loadings}
 
 \item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}

@@ -1,5 +1,6 @@
 pattern_filling <- function(A, pattern, Z = NA, mu = NA) {
-    # Compute a local maximizer of max_{X,Z} trace(X^T A Z N) s.t. X^T X=I_m and Z(P)=0 and Diag(Z^T Z)=I_m
+    # Compute a local maximizer of max_{X,Z} trace(X^T A Z N)
+    # s.t. X^T X=I_m and Z(P)=0 and Diag(Z^T Z)=I_m
 
     p <- nrow(A)
     n <- ncol(A)

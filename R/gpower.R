@@ -7,20 +7,20 @@ source("R/pattern_filling.R")
 #' L0 penalty and a column based and block approach.
 #'
 #' @description GPower uses four different optimization procedures for the four
-#'   combinations between l0 and l1 penalty and single-unit or block
-#'   computation. With the l0 penalty, the cardinality of the solutions is
-#'   penalized. The objective function of the single unit case with l1 penalty
+#'   combinations between $l_0$ and $l_1$ penalty and single-unit or block
+#'   computation. With the $l_0$ penalty, the cardinality of the solutions is
+#'   penalized. The objective function of the single unit case with $l_1$ penalty
 #'   is \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
 #'   \sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}} where x
 #'   represents the components and gamma is the penalty. For the single unit
-#'   case with the l0 penalty, the following function is used
+#'   case with the $l_0$ penalty, the following function is used
 #'   \mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{ \sum_{i=1}^{n}{\lbrack
 #'   (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}} Where the results are squared
 #'   before gamma is subtracted instead of after. For the block cases, the
-#'   following functions are used. First the case with l1 penalty
+#'   following functions are used. First the case with $l_1$ penalty
 #'   \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
 #'   \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack \mu_{j} |a_{i}^{T}x_{j}| -
-#'   \gamma_{i} \rbrack_{+}^{2}}}} and for the l0 penalty
+#'   \gamma_{i} \rbrack_{+}^{2}}}} and for the $l_0$ penalty
 #'   \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
 #'   \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} -
 #'   \gamma_{i} \rbrack_{+}}}} All of these functions are optimized using
@@ -35,7 +35,7 @@ source("R/pattern_filling.R")
 #' @param penalty Penalty type to use in the optimization. Either 'l0' or 'l1'.
 #'   The default is 'l1' since it performed best in experiments.
 #' @param center Centers the data. Either TRUE or FALSE. Default is TRUE.
-#' @param block If FALSE, the components are calculated
+#' @param block Optimization method. If FALSE, the components are calculated
 #'   individually. If TRUE, all components are calculated at the same time.
 #'   Default is FALSE.
 #' @param mu Mean to be applied to each component in the block. Either a vector
@@ -365,6 +365,7 @@ gpower.default <-
                 pattern <-
                     abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
                 Z <- pattern_filling(X, pattern, Z, mu)
+
             } else if (penalty == "l0") {
                 rho <- rho %*% (rho_max ^ 2)
 
@@ -568,6 +569,7 @@ gpower.default <-
         scores <- data %*% Z
         P <- t(data) %*% MASS::ginv(t(scores))
         data_approx <- scores %*% t(P)
+        colnames(Z) <- as.character(1:k)
 
         gpowerObj$loadings <- Z
         gpowerObj$scores <- scores

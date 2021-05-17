@@ -53,20 +53,20 @@ the components} \item{centers}{Centers of matrix data if center == TRUE} }
 }
 \description{
 GPower uses four different optimization procedures for the four
-combinations between l0 and l1 penalty and single-unit or block
-computation. With the l0 penalty, the cardinality of the solutions is
-penalized. The objective function of the single unit case with l1 penalty
+combinations between $l_0$ and $l_1$ penalty and single-unit or block
+computation. With the $l_0$ penalty, the cardinality of the solutions is
+penalized. The objective function of the single unit case with $l_1$ penalty
 is \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
 \sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}} where x
 represents the components and gamma is the penalty. For the single unit
-case with the l0 penalty, the following function is used
+case with the $l_0$ penalty, the following function is used
 \mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{ \sum_{i=1}^{n}{\lbrack
 (a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}} Where the results are squared
 before gamma is subtracted instead of after. For the block cases, the
-following functions are used. First the case with l1 penalty
+following functions are used. First the case with $l_1$ penalty
 \mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
 \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack \mu_{j} |a_{i}^{T}x_{j}| -
-\gamma_{i} \rbrack_{+}^{2}}}} and for the l0 penalty
+\gamma_{i} \rbrack_{+}^{2}}}} and for the $l_0$ penalty
 \mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
 \sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} -
 \gamma_{i} \rbrack_{+}}}} All of these functions are optimized using
