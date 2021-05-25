@@ -35,13 +35,13 @@ Default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if
-block is TRUE. Default is FALSE.}
+block is TRUE. The default is 1.}
 }
 \description{
 This plot shows what happens to the variance explained by each component if
 rho is increased. The individual explained variances are neither
 non-decreasing nor non-increasing. Their sum does trend downwards, but it is
-also not nonincreasing just like the proportion of explained variance.
+also not non-increasing just like the proportion of explained variance.
 }
 \examples{
 set.seed(360)
@@ -55,6 +55,6 @@ gpower_comp_var_plot(
   k = k,
   intervals = 40,
   penalty = 'l1',
-  center = TRUE,
+  center = TRUE
 )
 }

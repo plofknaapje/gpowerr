@@ -36,16 +36,16 @@ Default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if
-block is TRUE. Default is FALSE.}
+block is TRUE. The default is 1.}
 
 \item{iter_max}{Maximum iterations when adjusting components with gradient
-descent. Default is 1000.}
+descent. The default is 1000.}
 
-\item{epsilon}{Epsilon of the gradient descent stopping function. Default is
+\item{epsilon}{Epsilon of the gradient descent stopping function. The default is
 1e-4.}
 }
 \value{
-List containing: \describe{ \item{loadings}{The PCA components}
+List containing: \describe{ \item{weights}{The PCA components}
 \item{scores}{Scores of the components on data} \item{a_approx}{Reconstructed
 version of data using the components} \item{prop_sparse}{Proportion of
 sparsity of the components} \item{exp_var}{Explained ratio of variance of

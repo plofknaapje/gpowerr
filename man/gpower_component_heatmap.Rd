@@ -11,7 +11,10 @@ gpower_component_heatmap(
   penalty = "l1",
   center = TRUE,
   block = FALSE,
-  mu = 1
+  mu = 1,
+  variable_highlight = NA,
+  cluster_variables = FALSE,
+  show_variable_names = TRUE
 )
 }
 \arguments{
@@ -34,12 +37,17 @@ Default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if
-block is TRUE. Default is FALSE.}
+block is TRUE. The default is 1.}
+
+\item{variable_highlight}{Add a color coding to the variables using a matrix with of size n x 1 where the row names are the same as the column names of the data matrix.}
+
+\item{cluster_variables}{Cluster the variables using hierarchical clustering.}
+
+\item{show_variable_names}{Show the names of the variables on the right side of the graph.}
 }
 \description{
 This plot shows the values of the components, connected to the columns of the
-original data. The column data is ordered using builtin dendrogram of the
-base heatmap function.
+original data. The heatmap is made using the pheatmap function from the pheatmap package.
 }
 \examples{
 set.seed(360)
@@ -53,6 +61,11 @@ gpower_component_heatmap(
   k = 5,
   rho = 0.1,
   penalty = 'l1',
-  center = TRUE
+  center = TRUE,
+  block = FALSE,
+  mu = 1,
+  variable_highlight = NA,
+  cluster_variables = FALSE,
+  show_variable_names = TRUE
 )
 }

@@ -10,8 +10,8 @@ source("R/gpower.r")
 #'
 #' @inheritParams gpower
 #' @param intervals The amount of intervals in the range of values of rho for
-#'   which gpower is run. For l1, the range of values is 0-1, for l0, the range
-#'   is 0-0.33. The block algorithms tend to stop at 0.4 and will only cover the
+#'   which gpower is run. For l1, the range of values is \[0, 1\], for l0, the range
+#'   is \[0, 0.33\]. The block algorithms are unable to run at 0.4 and above and will only cover the
 #'   range where gpower is able to run.
 #'
 #' @examples
@@ -26,7 +26,7 @@ source("R/gpower.r")
 #'   k = k,
 #'   intervals = 40,
 #'   penalty = 'l1',
-#'   center = TRUE,
+#'   center = TRUE
 #' )
 #' @export
 gpower_var_plot <-
@@ -160,8 +160,8 @@ gpower_var_plot <-
             values,
             exp_vars,
             type = "l",
-            main = "Variance and Sparseness as a function of Rho",
-            xlab = "Proportion of the upper bound",
+            main = "Proportion of explained variance and sparseness as a function of rho",
+            xlab = "Rho (proportion of the upper bound)",
             ylab = "Proportion",
             col = "blue",
             ylim = c(min(exp_vars, prop_sparses),
@@ -181,7 +181,7 @@ gpower_var_plot <-
 #' This plot shows what happens to the variance explained by each component if
 #' rho is increased. The individual explained variances are neither
 #' non-decreasing nor non-increasing. Their sum does trend downwards, but it is
-#' also not nonincreasing just like the proportion of explained variance.
+#' also not non-increasing just like the proportion of explained variance.
 #'
 #' @inheritParams gpower
 #' @param intervals The amount of intervals in the range of values of rho for
@@ -201,7 +201,7 @@ gpower_var_plot <-
 #'   k = k,
 #'   intervals = 40,
 #'   penalty = 'l1',
-#'   center = TRUE,
+#'   center = TRUE
 #' )
 #' @export
 gpower_comp_var_plot <-
@@ -319,9 +319,9 @@ gpower_comp_var_plot <-
             values,
             comp_vars,
             type = "l",
-            main = "Variance explained by each component",
-            xlab = "Proportion of the upper bound",
-            ylab = "Variance"
+            main = "Explained variance per component as a function of rho",
+            xlab = "Rho (proportion of the upper bound)",
+            ylab = "Explained variance"
         )
         graphics::legend(
             "topright",
@@ -336,10 +336,12 @@ gpower_comp_var_plot <-
 #' Plots value of each column of the data for each component
 #'
 #' This plot shows the values of the components, connected to the columns of the
-#' original data. The column data is ordered using builtin dendrogram of the
-#' base heatmap function.
+#' original data. The heatmap is made using the pheatmap function from the pheatmap package.
 #'
 #' @inheritParams gpower
+#' @param variable_highlight Add a color coding to the variables using a matrix with of size n x 1 where the row names are the same as the column names of the data matrix.
+#' @param cluster_variables Cluster the variables using hierarchical clustering.
+#' @param show_variable_names Show the names of the variables on the right side of the graph.
 #'
 #' @examples
 #' set.seed(360)
@@ -356,6 +358,7 @@ gpower_comp_var_plot <-
 #'   center = TRUE,
 #'   block = FALSE,
 #'   mu = 1,
+#'   variable_highlight = NA,
 #'   cluster_variables = FALSE,
 #'   show_variable_names = TRUE
 #' )
@@ -371,21 +374,35 @@ gpower_component_heatmap <-
              variable_highlight = NA,
              cluster_variables = FALSE,
              show_variable_names = TRUE) {
-        # Add custom colorbrew
         pow <- gpower(data, k, rho, penalty, center, block, mu)
-        if (any(is.na(variable_highlight))){
-            pheatmap::pheatmap(pow$loadings, cluster_cols = FALSE,
-                               cluster_rows = cluster_variables,
-                               show_rownames = show_variable_names,
-                               main = "Heatmap of GPower component weights")
+        weights <- t(pow$weights)
+        title <- "Heatmap of gpower weights"
+        col <-
+            grDevices::colorRampPalette(c("navy", "white", "firebrick3"))(50)
+        max_val <- round(max(abs(weights)), 2)
+        breaks <- seq(-1 * max_val, max_val, length.out = 51)
+        if (any(is.na(variable_highlight))) {
+            pheatmap::pheatmap(
+                weights,
+                cluster_rows = FALSE,
+                cluster_cols = cluster_variables,
+                show_colnames = show_variable_names,
+                main = title,
+                color = col,
+                breaks = breaks
+            )
         } else {
-            pheatmap::pheatmap(pow$loadings, cluster_cols = FALSE,
-                               cluster_rows = cluster_variables,
-                               show_rownames = show_variable_names,
-                               annotation_row = variable_highlight,
-                               main = "Heatmap of GPower component weights",
-                               annotation_names_row = FALSE)
+            pheatmap::pheatmap(
+                weights,
+                cluster_rows = FALSE,
+                cluster_cols = cluster_variables,
+                show_colnames = show_variable_names,
+                annotation_col = variable_highlight,
+                main = title,
+                annotation_names_col = FALSE,
+                color = col,
+                breaks = breaks,
+                angle_col = 45
+            )
         }
-
-        # Add legend!!!
     }

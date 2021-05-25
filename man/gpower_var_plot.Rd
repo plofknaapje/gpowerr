@@ -20,8 +20,8 @@ gpower_var_plot(
 \item{k}{Number of components, 0 < k < p.}
 
 \item{intervals}{The amount of intervals in the range of values of rho for
-which gpower is run. For l1, the range of values is 0-1, for l0, the range
-is 0-0.33. The block algorithms tend to stop at 0.4 and will only cover the
+which gpower is run. For l1, the range of values is [0, 1], for l0, the range
+is [0, 0.33]. The block algorithms are unable to run at 0.4 and above and will only cover the
 range where gpower is able to run.}
 
 \item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
@@ -35,7 +35,7 @@ Default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if
-block is TRUE. Default is FALSE.}
+block is TRUE. The default is 1.}
 }
 \description{
 This plot shows what happens to the proportion of explained variance and
@@ -56,6 +56,6 @@ gpower_var_plot(
   k = k,
   intervals = 40,
   penalty = 'l1',
-  center = TRUE,
+  center = TRUE
 )
 }

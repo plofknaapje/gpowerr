@@ -40,13 +40,13 @@ source("R/pattern_filling.R")
 #'   Default is FALSE.
 #' @param mu Mean to be applied to each component in the block. Either a vector
 #'   of float of size k or a float which will be repeated k times. Only used if
-#'   block is TRUE. Default is FALSE.
+#'   block is TRUE. The default is 1.
 #' @param iter_max Maximum iterations when adjusting components with gradient
-#'   descent. Default is 1000.
-#' @param epsilon Epsilon of the gradient descent stopping function. Default is
+#'   descent. The default is 1000.
+#' @param epsilon Epsilon of the gradient descent stopping function. The default is
 #'   1e-4.
 #'
-#' @return List containing: \describe{ \item{loadings}{The PCA components}
+#' @return List containing: \describe{ \item{weights}{The PCA components}
 #'   \item{scores}{Scores of the components on data} \item{a_approx}{Reconstructed
 #'   version of data using the components} \item{prop_sparse}{Proportion of
 #'   sparsity of the components} \item{exp_var}{Explained ratio of variance of
@@ -106,6 +106,8 @@ gpower.default <-
              epsilon = 1e-04) {
         data <- as.matrix(data)
 
+        sparsity_error <-
+            "Sparcity is set too high, all entries of loading vector are zero"
 
         # Checks ------------------------------------------------------------------
 
@@ -125,7 +127,7 @@ gpower.default <-
         picked <- FALSE
 
         # Initialize gpower object ------------------------------------------------
-        gpowerObj <- list(loadings = NULL, scores = NULL)
+        gpowerObj <- list(weights = NULL, scores = NULL)
 
         p <- nrow(data)
         n <- ncol(data)
@@ -178,14 +180,15 @@ gpower.default <-
 
                     while (TRUE) {
                         X_x <- t(X) %*% x
-                        t_resh <- sign(X_x) * pmax(abs(X_x) - rho_c, 0)
+                        t_resh <-
+                            sign(X_x) * pmax(abs(X_x) - rho_c, 0)
 
                         # Cost function
                         f[iter] <- sum(t_resh ^ 2)
 
                         if (f[iter] == 0) {
                             # Sparsity is too high
-                            warning("Sparcity is set to high, all entries of loading vector are zero")
+                            warning(sparsity_error)
                             break
                         } else {
                             gradient <- X %*% t_resh
@@ -249,7 +252,7 @@ gpower.default <-
 
                         if (f[iter] == 0) {
                             # Sparsity is too high
-                            warning("Sparcity is set to high, all entries of loading vector are zero")
+                            warning(sparsity_error)
                             break
                         } else {
                             gradient <- X %*% ((t_resh > 0) * X_x)
@@ -293,7 +296,8 @@ gpower.default <-
         }
 
         # Block algorithm with mu = 1 ---------------------------------------------
-        if (!picked & (k > 1 & block & sum(mu == 1) == length(mu))) {
+        if (!picked &
+            (k > 1 & block & sum(mu == 1) == length(mu))) {
             norm_a_i <- rep(0, n)
 
             for (i in 1:n) {
@@ -326,7 +330,7 @@ gpower.default <-
                     f[iter] <- sum(t_resh ^ 2)
 
                     if (f[iter] == 0) {
-                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        warning(sparsity_error)
                         break
                     } else {
                         gradient <- matrix(rep(0, p * k), nrow = p)
@@ -375,7 +379,7 @@ gpower.default <-
                         pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
                     f[iter] <- sum(sum(t_resh))
                     if (f[iter] == 0) {
-                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        warning(sparsity_error)
                         break
                     } else {
                         gradient <- matrix(rep(0, p * k), nrow = p)
@@ -402,7 +406,8 @@ gpower.default <-
                     iter <- iter + 1
                 }
 
-                pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
+                pattern <-
+                    (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
                 pattern_inv <- pattern == 0
                 Z <- X_x
                 Z[pattern_inv] <- 0
@@ -459,7 +464,7 @@ gpower.default <-
                     f[iter] <- sum(t_resh ^ 2)
 
                     if (f[iter] == 0) {
-                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        warning(sparsity_error)
                         break
                     } else {
                         gradient <- matrix(rep(0, p * k), nrow = p)
@@ -514,7 +519,7 @@ gpower.default <-
                         pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
                     f[iter] <- sum(sum(t_resh))
                     if (f[iter] == 0) {
-                        warning("Sparcity is set to high, all entries of loading vector are zero")
+                        warning(sparsity_error)
                         break
                     } else {
                         gradient <- matrix(rep(0, p * k), nrow = p)
@@ -546,7 +551,8 @@ gpower.default <-
                     X_x[, i] <- X_x[, i] * mu[i]
                 }
 
-                pattern <- (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
+                pattern <-
+                    (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
                 pattern_inv <- pattern == 0
                 Z <- t(X) %*% x
                 Z[pattern_inv] <- 0
@@ -571,7 +577,7 @@ gpower.default <-
         data_approx <- scores %*% t(P)
         colnames(Z) <- as.character(1:k)
 
-        gpowerObj$loadings <- Z
+        gpowerObj$weights <- Z
         gpowerObj$scores <- scores
         gpowerObj$a_approx <- data_approx
         gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
@@ -603,9 +609,8 @@ print.gpower <- function(x, ...) {
 
     cat("Proportion of Explained Variance\n")
     print(round(x$exp_var, 3))
-    cat("\nSparse loadings:\n")
-    print(round(x$loadings, 3))
-
+    cat("\nSparse weights:\n")
+    print(round(x$weights, 3))
 }
 
 

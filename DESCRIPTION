@@ -1,4 +1,4 @@
-Package: GPowerr
+Package: gpowerr
 Type: Package
 Title: Sparce PCA using the GPower method
 Version: 0.1.0

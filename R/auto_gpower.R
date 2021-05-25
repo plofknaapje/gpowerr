@@ -6,10 +6,10 @@ source("R/gpower.R")
 #' prop_sparse. It forwards the other settings to the \code{\link{gpower}}
 #' function.
 #'
-#' @param prop_sparse The percentage of the total values of the loadings matrix
+#' @param prop_sparse The percentage of the total values of the weights matrix
 #' which is equal to zero.
-#' @param accuracy The amound of digits to which to round prop_sparse and the
-#'   sparsity of the loadings
+#' @param accuracy The amount of digits to which to round prop_sparse and the
+#'   sparsity of the weights.
 #' @inheritParams gpower
 #'
 #' @examples
@@ -73,28 +73,30 @@ auto_gpower.default <-
         upper <- 1
         i <- 0
 
-        while (prop_zeros_needed != prop_zeros_current & max_iterations > i) {
+        while (prop_zeros_needed != prop_zeros_current &
+               max_iterations > i) {
             middle <- (lower + upper) / 2
 
             Z <- tryCatch(
-                    gpower(
-                        data = data,
-                        k = k,
-                        rho = middle,
-                        penalty = penalty,
-                        center = center,
-                        block = block,
-                        mu = mu,
-                        iter_max = iter_max,
-                        epsilon = epsilon
-                    ),
-                    error = function(e) {
-                        NULL
-                    }
-                )
+                gpower(
+                    data = data,
+                    k = k,
+                    rho = middle,
+                    penalty = penalty,
+                    center = center,
+                    block = block,
+                    mu = mu,
+                    iter_max = iter_max,
+                    epsilon = epsilon
+                ),
+                error = function(e) {
+                    NULL
+                }
+            )
 
             if (is.list(Z)) {
-                prop_zeros_current <- round(sum(rowSums(Z$loadings == 0))/(n*k), accuracy)
+                prop_zeros_current <-
+                    round(sum(rowSums(Z$weights == 0)) / (n * k), accuracy)
 
                 if (prop_zeros_needed > prop_zeros_current) {
                     lower <- middle
@@ -118,7 +120,9 @@ auto_gpower.default <-
                 "iterations, rho",
                 round(middle, 5),
                 "achieves",
-                round(sum(rowSums(Z$loadings == 0))/(n*k), accuracy),
+                round(sum(rowSums(
+                    Z$weights == 0
+                )) / (n * k), accuracy),
                 "Proportion of Sparseness\n\n",
                 sep = " "
             )
@@ -128,4 +132,3 @@ auto_gpower.default <-
             warning("Unable to find a suitable rho for specified prop_sparse")
         }
     }
-

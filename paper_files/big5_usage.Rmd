@@ -1,0 +1,100 @@
+---
+title: "Big5 dataset example"
+output: html_notebook
+---
+## Load the data
+```{r}
+knitr::opts_chunk$set(fig.width=7, fig.asp=0.618) 
+library(qgraph)
+library(gpowerr)
+data(big5)
+```
+
+## gpower function
+```{r}
+power <-
+  gpower(
+    data = big5,
+    k = 5,
+    rho = 0.1,
+    penalty = "l1",
+    center = TRUE,
+    block = FALSE,
+    mu = 1
+  )
+summary(power)
+power
+```
+
+## auto_gpower function
+```{r}
+auto <- auto_gpower(
+  data = big5,
+  k = 5,
+  prop_sparse = 0.2,
+  penalty = "l1",
+  block = FALSE,
+  mu = 1
+)
+summary(auto)
+auto
+```
+
+## gpower_component_heatmap function
+```{r}
+png("figures/big5fullheatmap.png", width = 600, height = 370, res=90)
+
+row_labels = data.frame(label = substring(colnames(big5), 1, 1),
+                        row.names = colnames(big5))
+gpower_component_heatmap(
+  data = big5,
+  k = 5,
+  rho = 0.1,
+  penalty = 'l1',
+  center = TRUE,
+  cluster_variables = TRUE,
+  show_variable_names = FALSE,
+  variable_highlight = row_labels
+)
+dev.off()
+
+png("figures/big525heatmap.png", width = 600, height = 370, res=90)
+
+row_labels_25 = data.frame(label = substring(colnames(big5)[1:25], 1, 1),
+                        row.names = colnames(big5)[1:25])
+
+gpower_component_heatmap(
+  data = big5[, 1:25],
+  k = 5,
+  rho = 0.1,
+  penalty = 'l1',
+  center = TRUE,
+  cluster_variables = TRUE,
+  show_variable_names = TRUE,
+  variable_highlight = row_labels_25
+)
+dev.off()
+
+```
+
+```{r}
+png("figures/big5varplot.png", width = 600, height = 370, res=80)
+
+gpower_var_plot(
+  data = big5,
+  k = 5,
+  intervals = 40,
+  penalty = 'l1'
+)
+dev.off()
+
+png("figures/big5compvarplot.png", width = 600, height = 370, res=80)
+gpower_comp_var_plot(
+  data = big5,
+  k = 5,
+  intervals = 40,
+  penalty = 'l1'
+)
+dev.off()
+```
+
