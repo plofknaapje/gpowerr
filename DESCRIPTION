@@ -1,14 +1,14 @@
 Package: gpowerr
 Type: Package
-Title: Sparce PCA using the GPower method
+Title: Sparse PCA using the GPower method
 Version: 0.1.0
 License: GPL-3
 Encoding: UTF-8
 Authors@R: person("Robin", "Verhoef", email = "r.i.verhoef@uvt.nl", 
   role = c("aut", "cre"))
-Description: An implementation of the GPower method for Sparse PCA. M. Journee, 
-  Y. Nestrov, R. Sepulchre, Generalized Power Method for Sparse Principal 
-  Component Analysis (2010).
+Description: An implementation of the GPower method for Sparse PCA based on the 
+  paper by M. Journee, Y. Nestrov, R. Sepulchre, Generalized Power Method for 
+  Sparse Principal  Component Analysis (2010).
 LazyData: true
 URL: https://github.com/plofknaapje/gpowerr
 BugReports: https://github.com/plofknaapje/gpowerr
