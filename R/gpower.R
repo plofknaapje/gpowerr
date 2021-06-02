@@ -343,8 +343,15 @@ gpower.default <-
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
-                            gradient[, i] <-
-                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+                            gradient[, i] <- tryCatch(
+                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i])),
+                                error = function(e) {
+                                    NA
+                                })
+                            if (any(is.na(gradient[, i]))) {
+                                stop("Value of rho is too high")
+                            }
+
                         }
 
                         svd_decomp <- svd(gradient)
@@ -392,8 +399,17 @@ gpower.default <-
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
-                            gradient[, i] <-
-                                X[, pattern] %*% X_x[pattern, i]
+
+                            gradient[, i] <- tryCatch(
+                                X[, pattern] %*% X_x[pattern, i],
+                                error = function(e) {
+                                    NA
+                                })
+                            if (any(is.na(gradient[, i]))) {
+                                stop("Value of rho is too high")
+                            }
+
+
                         }
 
                         svd_decomp <- svd(gradient)

@@ -24,6 +24,7 @@ power <-
   )
 summary(power)
 print(power, print_zero_rows = FALSE)
+
 ```
 
 ## auto_gpower function
@@ -95,6 +96,7 @@ gpower_component_heatmap(
 dev.off()
 
 ```
+
 
 ```{r}
 png("figures/big5varplot.png", width = 600, height = 370, res=80)

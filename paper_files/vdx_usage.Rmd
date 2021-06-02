@@ -7,6 +7,7 @@ output: html_notebook
 ```{r}
 knitr::opts_chunk$set(fig.width=7, fig.asp=0.618)
 library("breastCancerVDX")
+
 library(gpowerr)
 
 data(vdx)
