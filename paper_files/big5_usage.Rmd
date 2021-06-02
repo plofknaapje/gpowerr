@@ -23,7 +23,7 @@ power <-
     mu = 1
   )
 summary(power)
-power
+print(power, print_zero_rows = FALSE)
 ```
 
 ## auto_gpower function
@@ -37,7 +37,30 @@ auto <- auto_gpower(
   mu = 1
 )
 summary(auto)
-auto
+print(auto, print_zero_rows = FALSE)
+```
+
+```{r}
+auto <- auto_gpower(
+  data = big5,
+  k = 5,
+  prop_sparse = 0.97
+)
+
+png("figures/big5smallheatmap.png", width = 600, height = 370, res=90)
+
+row_labels = data.frame(label = substring(colnames(big5), 1, 1),
+                        row.names = colnames(big5))
+gpower_component_heatmap(
+  data = big5,
+  k = 5,
+  rho = 0.3125,
+  cluster_variables = TRUE,
+  show_variable_names = TRUE,
+  variable_highlight = row_labels,
+  ignore_full_zero = TRUE
+)
+dev.off()
 ```
 
 ## gpower_component_heatmap function
@@ -50,8 +73,6 @@ gpower_component_heatmap(
   data = big5,
   k = 5,
   rho = 0.1,
-  penalty = 'l1',
-  center = TRUE,
   cluster_variables = TRUE,
   show_variable_names = FALSE,
   variable_highlight = row_labels
@@ -67,8 +88,6 @@ gpower_component_heatmap(
   data = big5[, 1:25],
   k = 5,
   rho = 0.1,
-  penalty = 'l1',
-  center = TRUE,
   cluster_variables = TRUE,
   show_variable_names = TRUE,
   variable_highlight = row_labels_25

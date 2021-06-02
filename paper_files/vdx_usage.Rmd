@@ -1,0 +1,44 @@
+---
+title: "vdx dataset usage"
+output: html_notebook
+---
+
+
+```{r}
+knitr::opts_chunk$set(fig.width=7, fig.asp=0.618)
+library("breastCancerVDX")
+library(gpowerr)
+
+data(vdx)
+expressions <- t(exprs(vdx))
+```
+
+## gpower function
+```{r}
+power <-
+  gpower(
+    data = expressions,
+    k = 1,
+    rho = 0.1,
+    penalty = "l1",
+    center = TRUE,
+    block = FALSE,
+    mu = 1
+  )
+summary(power)
+print(power, print_zeros=FALSE)
+```
+
+## auto_gpower function
+```{r}
+auto <- auto_gpower(
+  data = expressions,
+  k = 2,
+  prop_sparse = 0.5,
+  penalty = "l1",
+  block = FALSE,
+  mu = 1
+)
+summary(auto)
+print(auto, print_zeros=FALSE)
+```

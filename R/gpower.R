@@ -603,22 +603,31 @@ gpower.default <-
     }
 
 
+#' Prints the proportion of explained variance and the weights of the gpower
+#' object.
+#' @param print_zeros If FALSE, then only the rows which contain at least 1
+#' non-zero value will be printed.
 #' @export
-print.gpower <- function(x, ...) {
+print.gpower <- function(x, print_zero_rows = TRUE, ...) {
     # Print gpower --------------------------------------------------------------
 
     cat("Proportion of Explained Variance\n")
     print(round(x$exp_var, 3))
     cat("\nSparse weights:\n")
-    print(round(x$weights, 3))
+    if (print_zero_rows) {
+        print(round(x$weights, 3))
+    }
+    else {
+        row_has_nonzero <- apply(x$weights, 1, function(x){any(x != 0)})
+        print(round(x$weights[row_has_nonzero, ], 3))
+    }
+
 }
 
-
+#' Prints the proportion of explained variance and the proportion of sparseness.
 #' @export
 summary.gpower <- function(object, ...) {
     # Summary gpower ------------------------------------------------------------
-
-
     x <-
         t(data.frame(
             var = round(object$exp_var, 3),

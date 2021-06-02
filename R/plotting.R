@@ -1,18 +1,17 @@
 source("R/gpower.r")
 
-#' Plots explained variance and sparsity of the components
+#' Plots propotion of explained variance and sparsity for different values of rho
 #'
-#' This plot shows what happens to the proportion of explained variance and
+#' @description This plot shows what happens to the proportion of explained variance and
 #' proportion of sparsity if rho increases. The sparsity is non-decreasing, but
-#' the explained variance is not.
-#' This is also the case in the original MatLab code of the inventers of the
-#' method.
+#' the explained variance is not. This is also the case in the original MatLab
+#' code of the inventors of the method.
 #'
 #' @inheritParams gpower
 #' @param intervals The amount of intervals in the range of values of rho for
 #'   which gpower is run. For l1, the range of values is \[0, 1\], for l0, the range
 #'   is \[0, 0.33\]. The block algorithms are unable to run at 0.4 and above and will only cover the
-#'   range where gpower is able to run.
+#'   range where GPower is able to run.
 #'
 #' @examples
 #' set.seed(360)
@@ -176,7 +175,7 @@ gpower_var_plot <-
         )
     }
 
-#' Plots explained variance of each component
+#' Plots explained variance for each component as rho changes
 #'
 #' This plot shows what happens to the variance explained by each component if
 #' rho is increased. The individual explained variances are neither
@@ -185,8 +184,8 @@ gpower_var_plot <-
 #'
 #' @inheritParams gpower
 #' @param intervals The amount of intervals in the range of values of rho for
-#'   which gpower is run. For l1, the range of values is 0-1, for l0, the range
-#'   is 0-0.33. The block algorithms tend to stop at 0.4 and will only cover the
+#'   which gpower is run. For l1, the range of values is \[0-1\], for l0, the range
+#'   is \[0-0.33\]. The block algorithms tend to stop at 0.4 and will only cover the
 #'   range where gpower is able to run.
 #'
 #' @examples
@@ -342,6 +341,7 @@ gpower_comp_var_plot <-
 #' @param variable_highlight Add a color coding to the variables using a matrix with of size n x 1 where the row names are the same as the column names of the data matrix.
 #' @param cluster_variables Cluster the variables using hierarchical clustering.
 #' @param show_variable_names Show the names of the variables on the right side of the graph.
+#' @param ignore_full_zero Only show variables which have at least one non-zero weight.
 #'
 #' @examples
 #' set.seed(360)
@@ -360,7 +360,8 @@ gpower_comp_var_plot <-
 #'   mu = 1,
 #'   variable_highlight = NA,
 #'   cluster_variables = FALSE,
-#'   show_variable_names = TRUE
+#'   show_variable_names = TRUE,
+#'   ignore_full_zero = TRUE
 #' )
 #' @export
 gpower_component_heatmap <-
@@ -373,14 +374,25 @@ gpower_component_heatmap <-
              mu = 1,
              variable_highlight = NA,
              cluster_variables = FALSE,
-             show_variable_names = TRUE) {
+             show_variable_names = TRUE,
+             ignore_full_zero = TRUE) {
+
         pow <- gpower(data, k, rho, penalty, center, block, mu)
-        weights <- t(pow$weights)
+        if (ignore_full_zero) {
+            row_has_nonzero <- apply(pow$weights, 1, function(x){any(x != 0)})
+            weights <- t(pow$weights[row_has_nonzero,])
+            variable_highlight <- variable_highlight[row_has_nonzero]
+        } else {
+            weights <- t(pow$weights)
+        }
+
+
         title <- "Heatmap of gpower weights"
         col <-
             grDevices::colorRampPalette(c("navy", "white", "firebrick3"))(50)
         max_val <- round(max(abs(weights)), 2)
         breaks <- seq(-1 * max_val, max_val, length.out = 51)
+
         if (any(is.na(variable_highlight))) {
             pheatmap::pheatmap(
                 weights,
