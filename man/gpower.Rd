@@ -28,11 +28,11 @@ vector of floats of size k or float which will be repeated k times. 0 < rho
 \item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}
 
-\item{center}{Centers the data. Either TRUE or FALSE. Default is TRUE.}
+\item{center}{Centers the data. Either TRUE or FALSE. The default is TRUE.}
 
 \item{block}{Optimization method. If FALSE, the components are calculated
 individually. If TRUE, all components are calculated at the same time.
-Default is FALSE.}
+The default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if
@@ -41,8 +41,8 @@ block is TRUE. The default is 1.}
 \item{iter_max}{Maximum iterations when adjusting components with gradient
 descent. The default is 1000.}
 
-\item{epsilon}{Epsilon of the gradient descent stopping function. The default is
-1e-4.}
+\item{epsilon}{Epsilon of the gradient descent stopping function.
+The default is 1e-4.}
 }
 \value{
 List containing: \describe{ \item{weights}{The PCA components}
@@ -52,26 +52,34 @@ sparsity of the components} \item{exp_var}{Explained ratio of variance of
 the components} \item{centers}{Centers of matrix data if center == TRUE} }
 }
 \description{
-GPower uses four different optimization procedures for the four
-combinations between $l_0$ and $l_1$ penalty and single-unit or block
-computation. With the $l_0$ penalty, the cardinality of the solutions is
-penalized. The objective function of the single unit case with $l_1$ penalty
-is \loadmathjax \mjsdeqn{\phi_{l_{1}}(\gamma)=\max_{z \in S^{p}}{
-\sum_{i=1}^{n}{\lbrack |a_{i}^{T}x| - \gamma \rbrack_{+}^{2}}}} where x
-represents the components and gamma is the penalty. For the single unit
-case with the $l_0$ penalty, the following function is used
-\mjsdeqn{\phi_{l_{0}}(\gamma)=\max_{z \in S^{p}}{ \sum_{i=1}^{n}{\lbrack
-(a_{i}^{T}x)^{2} - \gamma \rbrack_{+}}}} Where the results are squared
-before gamma is subtracted instead of after. For the block cases, the
-following functions are used. First the case with $l_1$ penalty
-\mjsdeqn{\phi_{l_{1},m}(\gamma)=\max_{X \in S_{m}^{p}}
-\sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack \mu_{j} |a_{i}^{T}x_{j}| -
-\gamma_{i} \rbrack_{+}^{2}}}} and for the $l_0$ penalty
-\mjsdeqn{\phi_{l_{0},m}(\gamma)=\max_{X \in S_{m}^{p}}
-\sum_{j=1}^{m}{\sum_{i=1}^{n}{ \lbrack (\mu_{j}a_{i}^{T}x_{j})^{2} -
-\gamma_{i} \rbrack_{+}}}} All of these functions are optimized using
-gradient decent. In this implementation, a relative penalty is implemented
-with rho. Gamma is calculated using rho and the maximal norm value.
+{ \loadmathjax GPower uses four different optimization procedures for the four
+combinations between  \mjseqn{l_0} and \mjseqn{l_1} penalty and single-unit or block
+computation. The function tries to find a weights matrix
+\mjseqn{W \in R^{n \times k}} which has the highest possible explained
+variance of the data matrix \mjseqn{X \in R^{p \times n}} under the penalty
+constraints of the case. The matrix \mjseqn{Z \in R^{n \times k}} is used by some
+of the methods as an intermediate solution. Lambda is calculated by
+multiplying rho with the maximum possible value of lambda.
+
+The objective function of the single unit case with \mjseqn{l_1} penalty is
+\mjsdeqn{\hat{w} = \underset{\| w \| = 1}{\textrm{argmax}}{\| Xw \| - \lambda \| w \|_1}}
+For the single-unit case with the \mjseqn{l_0} penalty, the objective function is
+\mjsdeqn{\hat{w} = \underset{\| z \| = 1}{\textrm{argmax}}\;
+\underset{\| w \| = 1}{\textrm{argmax}}{ (z^\top X w)^2 - \lambda \| w \|_0},}
+where the results are squared before gamma is subtracted instead of after.
+In order to compute more than 1 component, the matrix \mjseqn{X} is adjusted after each new component.
+
+For the block cases, the following functions are used. For the case with \mjseqn{l_1} penalty,
+\mjsdeqn{\hat{W} = \underset{Z \in M^p_k}{\textrm{argmax}} \sum_{j=1}^k
+{\underset{\| W_j \| = 1}{\textrm{argmax}} \mu_j Z_j^{\top} XW_j -
+\lambda_j {\| Z_j \|} }}
+and for the \mjseqn{l_0} penalty case,
+\mjsdeqn{\hat{W} = \underset{Z \in M^p_k}{\textrm{argmax}} \sum_{j=1}^k
+\underset{\| \hat{W}_j \| = 1}{\textrm{argmax}} (\mu_j Z_i^{\top}
+X W_j)^2 - \lambda_j\| W_j \|_0}
+
+All of these functions are optimized using the generalized power approach
+as described in the paper by Journée et al. (2010).}
 }
 \details{
 Generalized power method for sparse principal component analysis. Implements

@@ -1,6 +1,4 @@
-source("R/gpower.r")
-
-#' Plots propotion of explained variance and sparsity for different values of rho
+#' Plots explained variance and sparsity of the components
 #'
 #' @description This plot shows what happens to the proportion of explained variance and
 #' proportion of sparsity if rho increases. The sparsity is non-decreasing, but

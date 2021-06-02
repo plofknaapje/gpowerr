@@ -1,4 +1,3 @@
-source("R/gpower.R")
 #' Find GPower rho for proportion of sparcity
 #'
 #' Using binary search find the value of rho for \code{\link{gpower}} for which

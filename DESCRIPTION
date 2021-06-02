@@ -17,6 +17,5 @@ Roxygen: list(markdown = TRUE)
 Imports: 
   MASS,
   mathjaxr,
-  qgraph,
   pheatmap
 RdMacros: mathjaxr

@@ -27,11 +27,11 @@ range where gpower is able to run.}
 \item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}
 
-\item{center}{Centers the data. Either TRUE or FALSE. Default is TRUE.}
+\item{center}{Centers the data. Either TRUE or FALSE. The default is TRUE.}
 
 \item{block}{Optimization method. If FALSE, the components are calculated
 individually. If TRUE, all components are calculated at the same time.
-Default is FALSE.}
+The default is FALSE.}
 
 \item{mu}{Mean to be applied to each component in the block. Either a vector
 of float of size k or a float which will be repeated k times. Only used if

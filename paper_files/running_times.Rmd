@@ -1,0 +1,61 @@
+---
+title: "Running times"
+output: html_notebook
+---
+
+Loading dependencies
+```{r}
+library(breastCancerVDX)
+library(gpowerr)
+library(microbenchmark)
+library(Biobase)
+library(dplyr)
+library(ggplot2)
+```
+
+Loading data
+```{r}
+data(vdx)
+expressions <- t(exprs(vdx))
+```
+
+Benchmark for gpower()
+```{r}
+result <- NA
+
+
+for (i in c(100, 500, 1000, 5000, 10000, 20000)) {
+  data <- expressions[, 1:i]
+  df <- print(microbenchmark(gpower(data, k = 2, rho = 0.1, penalty = 'l1'),
+                             gpower(data, k = 2, rho = 0.01, penalty = 'l0'),
+                             gpower(data, k = 2, rho = 0.01, penalty = 'l1', block = TRUE, mu = 1),
+                             gpower(data, k = 2, rho = 0.001, penalty = 'l0', block = TRUE, mu = 1),
+                             times = 10), unit = "s")[, c("expr", "mean")]
+  df["i"] <- i
+  df["method"] <- c("single-unit l1", "single-unit l0", "block l1", "block l0")
+  
+  if (is.data.frame(result)){
+    result <- bind_rows(result, df)
+  } else {
+    result <- df
+  }
+}
+```
+
+```{r}
+png("figures/running_times.png", width = 600, height = 370, res=90)
+
+ggplot(result, aes(x=i, y=mean, color=method)) +
+  geom_line() +
+#  geom_function(fun = ~ (0.01*.x)^1) +
+  scale_x_log10(breaks = c(100, 1000, 10000, 20000)) +
+  scale_y_log10() +
+  labs(x = "Number of variables", y = "Running time (seconds)", 
+       title = "Mean running times on the VDX expressions dataset", 
+       subtitle = "Both axis are on a log10 scale",
+       color = "Method", caption = "Rho values: single l1=0.1, single l0=0.01, block l1 = 0.01, block l0 = 0.001")
+  
+
+dev.off()
+```
+
