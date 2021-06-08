@@ -8,13 +8,14 @@ gpower_component_heatmap(
   data,
   k,
   rho,
-  penalty = "l1",
+  reg = "l1",
   center = TRUE,
   block = FALSE,
   mu = 1,
   variable_highlight = NA,
   cluster_variables = FALSE,
-  show_variable_names = TRUE
+  show_variable_names = TRUE,
+  ignore_full_zero = TRUE
 )
 }
 \arguments{
@@ -26,7 +27,7 @@ gpower_component_heatmap(
 vector of floats of size k or float which will be repeated k times. 0 < rho
 < 1.}
 
-\item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
+\item{reg}{regularisation type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}
 
 \item{center}{Centers the data. Either TRUE or FALSE. The default is TRUE.}
@@ -44,6 +45,8 @@ block is TRUE. The default is 1.}
 \item{cluster_variables}{Cluster the variables using hierarchical clustering.}
 
 \item{show_variable_names}{Show the names of the variables on the right side of the graph.}
+
+\item{ignore_full_zero}{Only show variables which have at least one non-zero weight.}
 }
 \description{
 This plot shows the values of the components, connected to the columns of the
@@ -60,12 +63,13 @@ gpower_component_heatmap(
   data = data,
   k = 5,
   rho = 0.1,
-  penalty = 'l1',
+  reg = 'l1',
   center = TRUE,
   block = FALSE,
   mu = 1,
   variable_highlight = NA,
   cluster_variables = FALSE,
-  show_variable_names = TRUE
+  show_variable_names = TRUE,
+  ignore_full_zero = TRUE
 )
 }

@@ -1,12 +1,12 @@
-#' Find GPower rho for proportion of sparcity
+#' Find GPower rho for proportion of sparsity
 #'
-#' Using binary search find the value of rho for \code{\link{gpower}} for which
-#' the the proporting of values equal to zero is closest to the value of
+#' Using binary search find a value of rho for which the weights matrix of
+#' \code{\link{gpower}} has a proportion of sparsity close to
 #' prop_sparse. It forwards the other settings to the \code{\link{gpower}}
 #' function.
 #'
 #' @param prop_sparse The percentage of the total values of the weights matrix
-#' which is equal to zero.
+#'   which is equal to zero.
 #' @param accuracy The amount of digits to which to round prop_sparse and the
 #'   sparsity of the weights.
 #' @inheritParams gpower
@@ -20,7 +20,7 @@
 #' prop_sparse <- 0.1
 #' mu <- 1
 #'
-#' auto_gpower(data, k, prop_sparse, penalty = 'l1', center = TRUE, block = FALSE)
+#' auto_gpower(data, k, prop_sparse, reg = 'l1', center = TRUE, block = FALSE)
 #'
 #' @export
 auto_gpower <-
@@ -28,7 +28,7 @@ auto_gpower <-
              k,
              prop_sparse,
              accuracy = 2,
-             penalty = c("l0", "l1"),
+             reg = c("l0", "l1"),
              center = c(TRUE, FALSE),
              block = c(TRUE, FALSE),
              mu = 1,
@@ -44,7 +44,7 @@ auto_gpower.default <-
              k,
              prop_sparse,
              accuracy = 2,
-             penalty = "l1",
+             reg = "l1",
              center = TRUE,
              block = FALSE,
              mu = 1,
@@ -58,11 +58,11 @@ auto_gpower.default <-
 
         if (prop_zeros_needed == 0) {
             # No sparsity
-            gpower(data, k, 0, penalty, center, block, mu, iter_max, epsilon)
+            gpower(data, k, 0, reg, center, block, mu, iter_max, epsilon)
         }
 
         if (block) {
-            max_iterations <- 500
+            max_iterations <- 250
         } else {
             max_iterations <- 100
         }
@@ -81,7 +81,7 @@ auto_gpower.default <-
                     data = data,
                     k = k,
                     rho = middle,
-                    penalty = penalty,
+                    reg = reg,
                     center = center,
                     block = block,
                     mu = mu,

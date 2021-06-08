@@ -22,7 +22,7 @@
 #'   data = data,
 #'   k = k,
 #'   intervals = 40,
-#'   penalty = 'l1',
+#'   reg = 'l1',
 #'   center = TRUE
 #' )
 #' @export
@@ -30,12 +30,12 @@ gpower_var_plot <-
     function(data,
              k,
              intervals,
-             penalty = "l1",
+             reg = "l1",
              center = TRUE,
              block = FALSE,
              mu = 1) {
         if (!block) {
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 values <- 0:(intervals - 1) / intervals
                 objs <-
                     lapply(values, function(x)
@@ -43,7 +43,7 @@ gpower_var_plot <-
                             data = data,
                             k = k,
                             rho = x,
-                            penalty = penalty,
+                            reg = reg,
                             center = center
                         ))
                 exp_vars <- sapply(objs, function(x)
@@ -51,7 +51,7 @@ gpower_var_plot <-
                 prop_sparses <- sapply(objs, function(x)
                     x$prop_sparse)
 
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 values <- 0:(intervals - 1) / (intervals * 3)
                 objs <-
                     lapply(values, function(x)
@@ -59,7 +59,7 @@ gpower_var_plot <-
                             data = data,
                             k = k,
                             rho = x,
-                            penalty = penalty,
+                            reg = reg,
                             center = center
                         ))
                 exp_vars <- sapply(objs, function(x)
@@ -67,11 +67,11 @@ gpower_var_plot <-
                 prop_sparses <- sapply(objs, function(x)
                     x$prop_sparse)
             } else {
-                warning("penalty not recognized")
+                warning("reg not recognized")
             }
 
         } else {
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 objs <- list()
                 values <- 0:(intervals - 1) / intervals
 
@@ -82,7 +82,7 @@ gpower_var_plot <-
                                 data = data,
                                 k = k,
                                 rho = x,
-                                penalty = penalty,
+                                reg = reg,
                                 center = center,
                                 block = block,
                                 mu = mu
@@ -104,7 +104,7 @@ gpower_var_plot <-
                     x$prop_sparse)
                 values <- values[1:length(exp_vars)]
 
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 objs <- list()
                 values <- 0:(intervals - 1) / (intervals * 3)
 
@@ -115,7 +115,7 @@ gpower_var_plot <-
                                 data = data,
                                 k = k,
                                 rho = x,
-                                penalty = penalty,
+                                reg = reg,
                                 center = center,
                                 block = block,
                                 mu = mu
@@ -139,7 +139,7 @@ gpower_var_plot <-
                 values <- values[1:length(exp_vars)]
 
             } else {
-                warning("penalty not recognized")
+                warning("reg not recognized")
             }
         }
         lbound <- floor(intervals / 3)
@@ -197,7 +197,7 @@ gpower_var_plot <-
 #'   data = data,
 #'   k = k,
 #'   intervals = 40,
-#'   penalty = 'l1',
+#'   reg = 'l1',
 #'   center = TRUE
 #' )
 #' @export
@@ -205,12 +205,12 @@ gpower_comp_var_plot <-
     function(data,
              k,
              intervals,
-             penalty = "l1",
+             reg = "l1",
              center = TRUE,
              block = FALSE,
              mu = 1) {
         if (!block) {
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 values <- 0:(intervals - 1) / intervals
                 objs <-
                     lapply(values, function(x)
@@ -218,13 +218,13 @@ gpower_comp_var_plot <-
                             data = data,
                             k = k,
                             rho = x,
-                            penalty = penalty,
+                            reg = reg,
                             center = center
                         ))
                 comp_vars <- t(sapply(objs, function(x)
                     x$comp_var))
 
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 values <- 0:(intervals - 1) / (intervals * 3)
                 objs <-
                     lapply(values, function(x)
@@ -232,18 +232,18 @@ gpower_comp_var_plot <-
                             data = data,
                             k = k,
                             rho = x,
-                            penalty = penalty,
+                            reg = reg,
                             center = center
                         ))
                 comp_vars <- t(sapply(objs, function(x)
                     x$comp_var))
 
             } else {
-                warning("penalty not recognized")
+                warning("reg not recognized")
             }
 
         } else {
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 objs <- list()
                 values <- 0:(intervals - 1) / intervals
 
@@ -254,7 +254,7 @@ gpower_comp_var_plot <-
                                 data = data,
                                 k = k,
                                 rho = x,
-                                penalty = penalty,
+                                reg = reg,
                                 center = center,
                                 block = block,
                                 mu = mu
@@ -275,7 +275,7 @@ gpower_comp_var_plot <-
                     x$comp_var))
                 values <- values[1:length(comp_vars)]
 
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 objs <- list()
                 values <- 0:(intervals - 1) / (intervals * 3)
 
@@ -286,7 +286,7 @@ gpower_comp_var_plot <-
                                 data = data,
                                 k = k,
                                 rho = x,
-                                penalty = penalty,
+                                reg = reg,
                                 center = center,
                                 block = block,
                                 mu = mu
@@ -308,7 +308,7 @@ gpower_comp_var_plot <-
                 values <- values[1:length(comp_vars)]
 
             } else {
-                warning("penalty not recognized")
+                warning("reg not recognized")
             }
         }
 
@@ -352,7 +352,7 @@ gpower_comp_var_plot <-
 #'   data = data,
 #'   k = 5,
 #'   rho = 0.1,
-#'   penalty = 'l1',
+#'   reg = 'l1',
 #'   center = TRUE,
 #'   block = FALSE,
 #'   mu = 1,
@@ -366,7 +366,7 @@ gpower_component_heatmap <-
     function(data,
              k,
              rho,
-             penalty = "l1",
+             reg = "l1",
              center = TRUE,
              block = FALSE,
              mu = 1,
@@ -375,7 +375,7 @@ gpower_component_heatmap <-
              show_variable_names = TRUE,
              ignore_full_zero = TRUE) {
 
-        pow <- gpower(data, k, rho, penalty, center, block, mu)
+        pow <- gpower(data, k, rho, reg, center, block, mu)
         if (ignore_full_zero) {
             row_has_nonzero <- apply(pow$weights, 1, function(x){any(x != 0)})
             weights <- t(pow$weights[row_has_nonzero,])

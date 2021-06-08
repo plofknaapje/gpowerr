@@ -7,39 +7,61 @@ output: html_notebook
 ```{r}
 knitr::opts_chunk$set(fig.width=7, fig.asp=0.618)
 library("breastCancerVDX")
-
+library(Biobase)
 library(gpowerr)
+```
 
+
+```{r}
 data(vdx)
+patientdata <- pData(vdx)
 expressions <- t(exprs(vdx))
 ```
 
-## gpower function
+## PCA results
 ```{r}
-power <-
-  gpower(
-    data = expressions,
-    k = 1,
-    rho = 0.1,
-    penalty = "l1",
-    center = TRUE,
-    block = FALSE,
-    mu = 1
-  )
-summary(power)
-print(power, print_zeros=FALSE)
+pca_results <- prcomp(expressions)
+pca_pev <- pca_results$sdev[1]^2/sum(pca_results$sdev^2)
 ```
 
-## auto_gpower function
+## Index of sparseness
 ```{r}
-auto <- auto_gpower(
-  data = expressions,
-  k = 2,
-  prop_sparse = 0.5,
-  penalty = "l1",
-  block = FALSE,
-  mu = 1
-)
-summary(auto)
-print(auto, print_zeros=FALSE)
+results <- rep(0, length(1:50))
+
+for (i in 1:50) {
+  pow <- gpower(data = expressions, k=1, rho = i/50, reg = "l1", center = TRUE)
+  results[i] <-  pow$exp_var * pca_pev * pow$prop_sparse
+}
+
+```
+
+plot
+```{r}
+png("figures/ISplot.png", width = 600, height = 370, res=80)
+plot(1:50/50, results, xlab="rho", ylab="Index of Sparseness")
+dev.off()
+
+max(results)
+which.max(results) / 50
+```
+
+final weights
+```{r}
+power <- gpower(data = expressions, k = 1, rho = 0.16)
+scores <- power$scores
+```
+
+```{r}
+scores <- scores[!is.na(patientdata$grade)]
+graded <- patientdata$grade[!is.na(patientdata$grade)]
+cor(scores, graded)
+cor.test(scores, graded)
+```
+
+
+```{r}
+genes <- row.names(power$weights)[power$weights != 0]
+genes
+
+write.table(genes, "genes.txt", quote = FALSE, col.names = FALSE, row.names = FALSE)
 ```

@@ -2,30 +2,30 @@
 #'
 #' Generalized power method for sparse principal component analysis. Implements
 #' the method developed by Journee et al. (2010) with a choice between a L1 and
-#' L0 penalty and a column based and block approach.
+#' L0 regularisation and a column based and block approach.
 #'
 #' @description{ \loadmathjax GPower uses four different optimization procedures for the four
-#'   combinations between  \mjseqn{l_0} and \mjseqn{l_1} penalty and single-unit or block
+#'   combinations between  \mjseqn{l_0} and \mjseqn{l_1} regularisation and single-unit or block
 #'   computation. The function tries to find a weights matrix
 #'   \mjseqn{W \in R^{n \times k}} which has the highest possible explained
-#'   variance of the data matrix \mjseqn{X \in R^{p \times n}} under the penalty
+#'   variance of the data matrix \mjseqn{X \in R^{p \times n}} under the regularisation
 #'   constraints of the case. The matrix \mjseqn{Z \in R^{n \times k}} is used by some
 #'   of the methods as an intermediate solution. Lambda is calculated by
 #'   multiplying rho with the maximum possible value of lambda.
 #'
-#'   The objective function of the single unit case with \mjseqn{l_1} penalty is
+#'   The objective function of the single unit case with \mjseqn{l_1} regularisation is
 #'   \mjsdeqn{\hat{w} = \underset{\| w \| = 1}{\textrm{argmax}}{\| Xw \| - \lambda \| w \|_1}}
-#'   For the single-unit case with the \mjseqn{l_0} penalty, the objective function is
+#'   For the single-unit case with the \mjseqn{l_0} regularisation, the objective function is
 #'   \mjsdeqn{\hat{w} = \underset{\| z \| = 1}{\textrm{argmax}}\;
 #'   \underset{\| w \| = 1}{\textrm{argmax}}{ (z^\top X w)^2 - \lambda \| w \|_0},}
 #'   where the results are squared before gamma is subtracted instead of after.
 #'   In order to compute more than 1 component, the matrix \mjseqn{X} is adjusted after each new component.
 #'
-#'   For the block cases, the following functions are used. For the case with \mjseqn{l_1} penalty,
+#'   For the block cases, the following functions are used. For the case with \mjseqn{l_1} regularisation,
 #'   \mjsdeqn{\hat{W} = \underset{Z \in M^p_k}{\textrm{argmax}} \sum_{j=1}^k
 #'   {\underset{\| W_j \| = 1}{\textrm{argmax}} \mu_j Z_j^{\top} XW_j -
 #'   \lambda_j {\| Z_j \|} }}
-#'   and for the \mjseqn{l_0} penalty case,
+#'   and for the \mjseqn{l_0} regularisation case,
 #'   \mjsdeqn{\hat{W} = \underset{Z \in M^p_k}{\textrm{argmax}} \sum_{j=1}^k
 #'   \underset{\| \hat{W}_j \| = 1}{\textrm{argmax}} (\mu_j Z_i^{\top}
 #'   X W_j)^2 - \lambda_j\| W_j \|_0}
@@ -38,7 +38,7 @@
 #' @param rho Relative sparsity weight factor of the optimization. Either a
 #'   vector of floats of size k or float which will be repeated k times. 0 < rho
 #'   < 1.
-#' @param penalty Penalty type to use in the optimization. Either 'l0' or 'l1'.
+#' @param reg regularisation type to use in the optimization. Either 'l0' or 'l1'.
 #'   The default is 'l1' since it performed best in experiments.
 #' @param center Centers the data. Either TRUE or FALSE. The default is TRUE.
 #' @param block Optimization method. If FALSE, the components are calculated
@@ -69,16 +69,16 @@
 #' mu <- 1
 #' # mu <- c(1, 1.5, 0.5, 2, 1)
 #'
-#' # Single unit with l1 penalty
+#' # Single unit with l1 regularisation
 #' gpower(data, k, rho, 'l1', TRUE)
 #'
-#' # Single unit with l0 penalty
+#' # Single unit with l0 regularisation
 #' gpower(data, k, rho, 'l0', TRUE)
 #'
-#' # Block with l1 penalty
+#' # Block with l1 regularisation
 #' gpower(data, k, rho, 'l1', TRUE, TRUE, mu)
 #'
-#' # Block with l0 penalty
+#' # Block with l0 regularisation
 #' gpower(data, k, rho, 'l0', TRUE, TRUE, mu)
 #'
 #' @references Journee, M., Nesterov, Y., Richtarik, P. and Sepulchre, R. (2010)
@@ -90,7 +90,7 @@ gpower <-
     function(data,
              k,
              rho,
-             penalty = c("l0", "l1"),
+             reg = c("l0", "l1"),
              center = c(TRUE, FALSE),
              block = c(TRUE, FALSE),
              mu = 1 ,
@@ -104,7 +104,7 @@ gpower.default <-
     function(data,
              k,
              rho,
-             penalty = "l1",
+             reg = "l1",
              center = TRUE,
              block = FALSE,
              mu = 1,
@@ -114,6 +114,8 @@ gpower.default <-
 
         sparsity_error <-
             "Sparcity is set too high, all entries of loading vector are zero"
+        reg_method <- "Regularisation method not recognized"
+        iter_warning <- "Maximum number of iterations was reached"
 
         # Checks ------------------------------------------------------------------
 
@@ -127,7 +129,7 @@ gpower.default <-
         }
 
         if (block == 1 & any(is.na(mu))) {
-            warning("Mu needs to be defined for Block algoritm")
+            warning("Mu needs to be defined for block algoritm")
         }
 
         picked <- FALSE
@@ -141,11 +143,9 @@ gpower.default <-
         iter_max <- iter_max
         epsilon <- epsilon
 
-        Z <-
-            matrix(0,
-                   nrow = n,
-                   ncol = k,
-                   dimnames = list(colnames(data)))
+        Z <- matrix(0, n, k, dimnames = list(colnames(data)))
+
+        W <- matrix(0, n, k, dimnames = list(colnames(data)))
 
         if (length(rho) == 1) {
             rho <- rep(rho, k)
@@ -166,7 +166,7 @@ gpower.default <-
         # Single unit algorithm ---------------------------------------------------
 
         if (!picked & (k == 1 | (k > 1 & !block))) {
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 for (c in 1:k) {
                     # Loop on the components
                     norm_a_i <- rep(0, n)
@@ -206,7 +206,7 @@ gpower.default <-
                             if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
                                 iter > iter_max) {
                                 if (iter > iter_max) {
-                                    print("Max iterations reached")
+                                    print(iter_warning)
                                     break
                                 }
                                 break
@@ -226,11 +226,14 @@ gpower.default <-
                     }
 
                     z <- pattern_filling(X, pattern, z)
+
+                    # Deflate
                     y <- X %*% z
                     X <- X - y %*% z
-                    Z[, c] <- z
+
+                    W[, c] <- z
                 }
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 for (c in 1:k) {
                     # Loop on the components
                     rho_c <- rho[c]
@@ -270,7 +273,7 @@ gpower.default <-
                             if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon |
                                 iter > iter_max) {
                                 if (iter > iter_max) {
-                                    print("Max iterations reached")
+                                    print(iter_warning)
                                     break
                                 }
                                 break
@@ -293,17 +296,17 @@ gpower.default <-
 
                     # Deflate
                     X <- X - y %*% t(z)
-                    Z[, c] <- z
+
+                    W[, c] <- z
                 }
             } else {
-                warning("Penalty not recognized")
+                warning(reg_method)
             }
             picked <- TRUE
         }
 
         # Block algorithm with mu = 1 ---------------------------------------------
-        if (!picked &
-            (k > 1 & block & sum(mu == 1) == length(mu))) {
+        if (!picked & (k > 1 & block & sum(mu == 1) == length(mu))) {
             norm_a_i <- rep(0, n)
 
             for (i in 1:n) {
@@ -326,20 +329,20 @@ gpower.default <-
             f <- rep(0, iter_max)
             iter <- 1
 
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 rho <- rho %*% rho_max
 
                 while (TRUE) {
                     X_x <- t(X) %*% x
                     t_resh <-
-                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
+                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho), 0)
                     f[iter] <- sum(t_resh ^ 2)
 
                     if (f[iter] == 0) {
                         warning(sparsity_error)
                         break
                     } else {
-                        gradient <- matrix(rep(0, p * k), nrow = p)
+                        gradient <- matrix(0, p, k)
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
@@ -360,7 +363,7 @@ gpower.default <-
 
                     if (iter > 2) {
                         if (iter > iter_max) {
-                            print("Max iterations reached")
+                            print(iter_warning)
                             break
                         }
                         if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
@@ -381,21 +384,21 @@ gpower.default <-
 
                 pattern <-
                     abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
-                Z <- pattern_filling(X, pattern, Z, mu)
+                W <- pattern_filling(X, pattern, Z, mu)
 
-            } else if (penalty == "l0") {
+            } else if (reg == "l0") {
                 rho <- rho %*% (rho_max ^ 2)
 
                 while (TRUE) {
                     X_x <- t(X) %*% x
                     t_resh <-
-                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
+                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho), 0)
                     f[iter] <- sum(sum(t_resh))
                     if (f[iter] == 0) {
                         warning(sparsity_error)
                         break
                     } else {
-                        gradient <- matrix(rep(0, p * k), nrow = p)
+                        gradient <- matrix(0, p, k)
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
@@ -418,7 +421,7 @@ gpower.default <-
 
                     if (iter > 2) {
                         if (iter > iter_max) {
-                            print("Max iterations reached")
+                            print(iter_warning)
                             break
                         }
                         if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
@@ -431,18 +434,18 @@ gpower.default <-
                 pattern <-
                     (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
                 pattern_inv <- pattern == 0
-                Z <- X_x
-                Z[pattern_inv] <- 0
+                W <- X_x
+                W[pattern_inv] <- 0
                 norm_z <- rep(0, k)
 
                 for (i in 1:k) {
-                    norm_z[i] <- norm(Z[, i], "2")
+                    norm_z[i] <- norm(W[, i], "2")
                     if (norm_z[i] > 0) {
-                        Z[, i] <- Z[, i] / norm_z[i]
+                        W[, i] <- W[, i] / norm_z[i]
                     }
                 }
             } else {
-                warning("Penalty not recognized")
+                warning(reg_method)
             }
             picked <- TRUE
         }
@@ -471,7 +474,7 @@ gpower.default <-
             f <- rep(0, iter_max)
             iter <- 1
 
-            if (penalty == "l1") {
+            if (reg == "l1") {
                 rho <- rho * mu %*% rho_max
 
                 while (TRUE) {
@@ -482,19 +485,19 @@ gpower.default <-
                     }
 
                     t_resh <-
-                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho))
+                        pmax(abs(X_x) - kronecker(matrix(1, n, 1), rho), 0)
                     f[iter] <- sum(t_resh ^ 2)
 
                     if (f[iter] == 0) {
                         warning(sparsity_error)
                         break
                     } else {
-                        gradient <- matrix(rep(0, p * k), nrow = p)
+                        gradient <- matrix(0, p, k)
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
                             gradient[, i] <-
-                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i]))
+                                X[, pattern] %*% (t_resh[pattern, i] * sign(X_x[pattern, i])) * mu[i]
                         }
 
                         svd_decomp <- svd(gradient)
@@ -503,7 +506,7 @@ gpower.default <-
 
                     if (iter > 2) {
                         if (iter > iter_max) {
-                            print("Max iterations reached")
+                            print(iter_warning)
                             break
                         }
                         if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
@@ -526,8 +529,8 @@ gpower.default <-
 
                 pattern <-
                     abs(X_x) - kronecker(matrix(1, n, 1), rho) > 0
-                Z <- pattern_filling(X, pattern, Z, mu)
-            } else if (penalty == "l0") {
+                W <- pattern_filling(X, pattern, Z, mu)
+            } else if (reg == "l0") {
                 rho <- rho * (mu %*% rho_max) ^ 2
 
                 while (TRUE) {
@@ -538,13 +541,13 @@ gpower.default <-
                     }
 
                     t_resh <-
-                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho))
+                        pmax(X_x ^ 2 - kronecker(matrix(1, n, 1), rho), 0)
                     f[iter] <- sum(sum(t_resh))
                     if (f[iter] == 0) {
                         warning(sparsity_error)
                         break
                     } else {
-                        gradient <- matrix(rep(0, p * k), nrow = p)
+                        gradient <- matrix(0, p, k)
 
                         for (i in 1:k) {
                             pattern <- t(t_resh[, i]) > 0
@@ -558,7 +561,7 @@ gpower.default <-
 
                     if (iter > 2) {
                         if (iter > iter_max) {
-                            print("Max iterations reached")
+                            print(iter_warning)
                             break
                         }
                         if ((f[iter] - f[iter - 1]) / f[iter - 1] < epsilon) {
@@ -576,33 +579,33 @@ gpower.default <-
                 pattern <-
                     (X_x ^ 2 - kronecker(matrix(1, n, 1), rho)) > 0
                 pattern_inv <- pattern == 0
-                Z <- t(X) %*% x
-                Z[pattern_inv] <- 0
+                W <- t(X) %*% x
+                W[pattern_inv] <- 0
                 norm_z <- rep(0, k)
 
                 for (i in 1:k) {
-                    norm_z[i] <- norm(Z[, i], "2")
+                    norm_z[i] <- norm(W[, i], "2")
                     if (norm_z[i] > 0) {
-                        Z[, i] <- Z[, i] / norm_z[i]
+                        W[, i] <- W[, i] / norm_z[i]
                     }
                 }
             } else {
-                warning("Penalty not recognized")
+                warning(reg_method)
             }
             picked <- TRUE
         }
 
 
         # Update gpower object ----------------------------------------------------
-        scores <- data %*% Z
+        scores <- data %*% W
         P <- t(data) %*% MASS::ginv(t(scores))
         data_approx <- scores %*% t(P)
-        colnames(Z) <- as.character(1:k)
+        colnames(W) <- as.character(1:k)
 
-        gpowerObj$weights <- Z
+        gpowerObj$weights <- W
         gpowerObj$scores <- scores
         gpowerObj$a_approx <- data_approx
-        gpowerObj$prop_sparse <- sum(rowSums(Z == 0)) / (n * k)
+        gpowerObj$prop_sparse <- sum(rowSums(W == 0)) / (n * k)
 
         # Add component variance (p22)
         AdjVar <- qr.R(qr(scores)) ^ 2
@@ -627,8 +630,10 @@ gpower.default <-
 
 #' Prints the proportion of explained variance and the weights of the gpower
 #' object.
-#' @param print_zeros If FALSE, then only the rows which contain at least 1
+#' @param x gpower object
+#' @param print_zero_rows If FALSE, then only the rows which contain at least 1
 #' non-zero value will be printed.
+#' @param ... print() parameters
 #' @export
 print.gpower <- function(x, print_zero_rows = TRUE, ...) {
     # Print gpower --------------------------------------------------------------
@@ -647,6 +652,8 @@ print.gpower <- function(x, print_zero_rows = TRUE, ...) {
 }
 
 #' Prints the proportion of explained variance and the proportion of sparseness.
+#' @param object gpower object
+#' @param ... summary() parameters
 #' @export
 summary.gpower <- function(object, ...) {
     # Summary gpower ------------------------------------------------------------

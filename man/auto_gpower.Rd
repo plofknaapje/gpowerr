@@ -2,14 +2,14 @@
 % Please edit documentation in R/auto_gpower.R
 \name{auto_gpower}
 \alias{auto_gpower}
-\title{Find GPower rho for proportion of sparcity}
+\title{Find GPower rho for proportion of sparsity}
 \usage{
 auto_gpower(
   data,
   k,
   prop_sparse,
   accuracy = 2,
-  penalty = c("l0", "l1"),
+  reg = c("l0", "l1"),
   center = c(TRUE, FALSE),
   block = c(TRUE, FALSE),
   mu = 1,
@@ -28,7 +28,7 @@ which is equal to zero.}
 \item{accuracy}{The amount of digits to which to round prop_sparse and the
 sparsity of the weights.}
 
-\item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
+\item{reg}{regularisation type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}
 
 \item{center}{Centers the data. Either TRUE or FALSE. The default is TRUE.}
@@ -48,8 +48,8 @@ descent. The default is 1000.}
 The default is 1e-4.}
 }
 \description{
-Using binary search find the value of rho for \code{\link{gpower}} for which
-the the proporting of values equal to zero is closest to the value of
+Using binary search find a value of rho for which the weights matrix of
+\code{\link{gpower}} has a proportion of sparsity close to
 prop_sparse. It forwards the other settings to the \code{\link{gpower}}
 function.
 }
@@ -62,6 +62,6 @@ data <- matrix(stats::rnorm(p * n), nrow = p, ncol = n)
 prop_sparse <- 0.1
 mu <- 1
 
-auto_gpower(data, k, prop_sparse, penalty = 'l1', center = TRUE, block = FALSE)
+auto_gpower(data, k, prop_sparse, reg = 'l1', center = TRUE, block = FALSE)
 
 }

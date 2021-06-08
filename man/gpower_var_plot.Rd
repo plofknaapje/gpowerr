@@ -8,7 +8,7 @@ gpower_var_plot(
   data,
   k,
   intervals,
-  penalty = "l1",
+  reg = "l1",
   center = TRUE,
   block = FALSE,
   mu = 1
@@ -22,9 +22,9 @@ gpower_var_plot(
 \item{intervals}{The amount of intervals in the range of values of rho for
 which gpower is run. For l1, the range of values is [0, 1], for l0, the range
 is [0, 0.33]. The block algorithms are unable to run at 0.4 and above and will only cover the
-range where gpower is able to run.}
+range where GPower is able to run.}
 
-\item{penalty}{Penalty type to use in the optimization. Either 'l0' or 'l1'.
+\item{reg}{regularisation type to use in the optimization. Either 'l0' or 'l1'.
 The default is 'l1' since it performed best in experiments.}
 
 \item{center}{Centers the data. Either TRUE or FALSE. The default is TRUE.}
@@ -40,9 +40,8 @@ block is TRUE. The default is 1.}
 \description{
 This plot shows what happens to the proportion of explained variance and
 proportion of sparsity if rho increases. The sparsity is non-decreasing, but
-the explained variance is not.
-This is also the case in the original MatLab code of the inventers of the
-method.
+the explained variance is not. This is also the case in the original MatLab
+code of the inventors of the method.
 }
 \examples{
 set.seed(360)
@@ -55,7 +54,7 @@ gpower_var_plot(
   data = data,
   k = k,
   intervals = 40,
-  penalty = 'l1',
+  reg = 'l1',
   center = TRUE
 )
 }

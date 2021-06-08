@@ -17,7 +17,7 @@ power <-
     data = big5,
     k = 5,
     rho = 0.1,
-    penalty = "l1",
+    reg = "l1",
     center = TRUE,
     block = FALSE,
     mu = 1
@@ -33,7 +33,7 @@ auto <- auto_gpower(
   data = big5,
   k = 5,
   prop_sparse = 0.2,
-  penalty = "l1",
+  reg = "l1",
   block = FALSE,
   mu = 1
 )
@@ -105,7 +105,7 @@ gpower_var_plot(
   data = big5,
   k = 5,
   intervals = 40,
-  penalty = 'l1'
+  reg = 'l1'
 )
 dev.off()
 
@@ -114,7 +114,7 @@ gpower_comp_var_plot(
   data = big5,
   k = 5,
   intervals = 40,
-  penalty = 'l1'
+  reg = 'l1'
 )
 dev.off()
 ```
