@@ -20,6 +20,7 @@ expressions <- t(exprs(vdx))
 ```
 
 Select level of sparsity, find corresponding rho and run benchmark again.
+Manually select a value of i for which you want to know rho.
 ```{r}
 i <- 20000
 data <- expressions[, 1:i]
@@ -37,7 +38,7 @@ df <- print(microbenchmark(gpower(data, k = 2, rho = 0.0488, reg = 'l1'),
                            gpower(data, k = 2, rho = 0.00293, reg = 'l0'),
                            times = 50), unit = "s")[, c("expr", "mean")]
 df["i"] <- i
-df["method"] <- c("single-unit l1", "single-unit l0")
+df["method"] <- c("l1", "l0")
 
 result <- df
 
@@ -50,7 +51,7 @@ df <- print(microbenchmark(gpower(data, k = 2, rho = 0.04004, reg = 'l1'),
                            gpower(data, k = 2, rho = 0.00171 , reg = 'l0'),
                            times = 20), unit = "s")[, c("expr", "mean")]
 df["i"] <- i
-df["method"] <- c("single-unit l1", "single-unit l0")
+df["method"] <- c("l1", "l0")
 
 result <- bind_rows(result, df)
 
@@ -63,7 +64,7 @@ df <- print(microbenchmark(gpower(data, k = 2, rho = 0.03418, reg = 'l1'),
                            gpower(data, k = 2, rho = 0.00134, reg = 'l0'),
                            times = 10), unit = "s")[, c("expr", "mean")]
 df["i"] <- i
-df["method"] <- c("single-unit l1", "single-unit l0")
+df["method"] <- c("l1", "l0")
 
 result <- bind_rows(result, df)
 ```
@@ -73,12 +74,12 @@ png("figures/running_times.png", width = 600, height = 370, res=90)
 
 ggplot(result, aes(x=i, y=mean, color=method)) +
   geom_line() +
-  scale_x_log10(breaks = c(100, 1000, 10000, 20000)) +
+  scale_x_log10(breaks = c(200, 2000, 20000)) +
   scale_y_log10() +
-  labs(x = "log number of variables", y = "log running time (seconds)", 
-       title = "Mean running times on the VDX expressions dataset ", 
-       subtitle = "to obtain a 50% sparse weights matrix",
-       color = "Method")
+  labs(x = "Number of variables", y = "Running time (seconds)", 
+       title = "Mean running times on the VDX expressions dataset", 
+       color = "Method",
+       caption = "Both axis are on a log scale")
   
 
 dev.off()

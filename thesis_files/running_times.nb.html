@@ -1753,12 +1753,74 @@ pre code {
 <p>Loading dependencies</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShicmVhc3RDYW5jZXJWRFgpXG5saWJyYXJ5KG1pY3JvYmVuY2htYXJrKVxubGlicmFyeShCaW9iYXNlKVxubGlicmFyeShkcGx5cilcbmxpYnJhcnkoZ2dwbG90MilcbmxpYnJhcnkoZ3Bvd2VycilcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShicmVhc3RDYW5jZXJWRFgpXG5saWJyYXJ5KG1pY3JvYmVuY2htYXJrKVxuYGBgIn0= -->
 <pre class="r"><code>library(breastCancerVDX)
-library(microbenchmark)
-library(Biobase)
-library(dplyr)
-library(ggplot2)
+library(microbenchmark)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDjpLzjuLFtaWNyb2JlbmNobWFya+OkvOO4siB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMC41XG4ifQ== -->
+<pre><code>package 㤼㸱microbenchmark㤼㸲 was built under R version 4.0.5</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShCaW9iYXNlKVxuYGBgIn0= -->
+<pre class="r"><code>library(Biobase)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBCaW9jR2VuZXJpY3NcbnBhY2thZ2Ug46S847ixQmlvY0dlbmVyaWNz46S847iyIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4wLjVMb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IHBhcmFsbGVsXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDjpLzjuLFCaW9jR2VuZXJpY3PjpLzjuLJcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDjpLzjuLFwYWNrYWdlOnBhcmFsbGVs46S847iyOlxuXG4gICAgY2x1c3RlckFwcGx5LCBjbHVzdGVyQXBwbHlMQiwgY2x1c3RlckNhbGwsIGNsdXN0ZXJFdmFsUSxcbiAgICBjbHVzdGVyRXhwb3J0LCBjbHVzdGVyTWFwLCBwYXJBcHBseSwgcGFyQ2FwcGx5LCBwYXJMYXBwbHksXG4gICAgcGFyTGFwcGx5TEIsIHBhclJhcHBseSwgcGFyU2FwcGx5LCBwYXJTYXBwbHlMQlxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOOkvOO4sXBhY2thZ2U6c3RhdHPjpLzjuLI6XG5cbiAgICBJUVIsIG1hZCwgc2QsIHZhciwgeHRhYnNcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDjpLzjuLFwYWNrYWdlOmJhc2XjpLzjuLI6XG5cbiAgICBhbnlEdXBsaWNhdGVkLCBhcHBlbmQsIGFzLmRhdGEuZnJhbWUsIGJhc2VuYW1lLCBjYmluZCxcbiAgICBjb2xuYW1lcywgZGlybmFtZSwgZG8uY2FsbCwgZHVwbGljYXRlZCwgZXZhbCwgZXZhbHEsXG4gICAgRmlsdGVyLCBGaW5kLCBnZXQsIGdyZXAsIGdyZXBsLCBpbnRlcnNlY3QsIGlzLnVuc29ydGVkLFxuICAgIGxhcHBseSwgTWFwLCBtYXBwbHksIG1hdGNoLCBtZ2V0LCBvcmRlciwgcGFzdGUsIHBtYXgsXG4gICAgcG1heC5pbnQsIHBtaW4sIHBtaW4uaW50LCBQb3NpdGlvbiwgcmFuaywgcmJpbmQsIFJlZHVjZSxcbiAgICByb3duYW1lcywgc2FwcGx5LCBzZXRkaWZmLCBzb3J0LCB0YWJsZSwgdGFwcGx5LCB1bmlvbixcbiAgICB1bmlxdWUsIHVuc3BsaXQsIHdoaWNoLm1heCwgd2hpY2gubWluXG5cbldlbGNvbWUgdG8gQmlvY29uZHVjdG9yXG5cbiAgICBWaWduZXR0ZXMgY29udGFpbiBpbnRyb2R1Y3RvcnkgbWF0ZXJpYWw7IHZpZXcgd2l0aFxuICAgICdicm93c2VWaWduZXR0ZXMoKScuIFRvIGNpdGUgQmlvY29uZHVjdG9yLCBzZWVcbiAgICAnY2l0YXRpb24oXCJCaW9iYXNlXCIpJywgYW5kIGZvciBwYWNrYWdlc1xuICAgICdjaXRhdGlvbihcInBrZ25hbWVcIiknLlxuIn0= -->
+<pre><code>Loading required package: BiocGenerics
+package 㤼㸱BiocGenerics㤼㸲 was built under R version 4.0.5Loading required package: parallel
+
+Attaching package: 㤼㸱BiocGenerics㤼㸲
+
+The following objects are masked from 㤼㸱package:parallel㤼㸲:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from 㤼㸱package:stats㤼㸲:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from 㤼㸱package:base㤼㸲:
+
+    anyDuplicated, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq,
+    Filter, Find, get, grep, grepl, intersect, is.unsorted,
+    lapply, Map, mapply, match, mget, order, paste, pmax,
+    pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce,
+    rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unsplit, which.max, which.min
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    &#39;browseVignettes()&#39;. To cite Bioconductor, see
+    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages
+    &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmBgYCJ9 -->
+<pre class="r"><code>library(dplyr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDjpLzjuLFkcGx5cuOkvOO4siB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMC41XG5BdHRhY2hpbmcgcGFja2FnZTog46S847ixZHBseXLjpLzjuLJcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g46S847ixcGFja2FnZTpCaW9iYXNl46S847iyOlxuXG4gICAgY29tYmluZVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOOkvOO4sXBhY2thZ2U6QmlvY0dlbmVyaWNz46S847iyOlxuXG4gICAgY29tYmluZSwgaW50ZXJzZWN0LCBzZXRkaWZmLCB1bmlvblxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOOkvOO4sXBhY2thZ2U6c3RhdHPjpLzjuLI6XG5cbiAgICBmaWx0ZXIsIGxhZ1xuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOOkvOO4sXBhY2thZ2U6YmFzZeOkvOO4sjpcblxuICAgIGludGVyc2VjdCwgc2V0ZGlmZiwgc2V0ZXF1YWwsIHVuaW9uXG4ifQ== -->
+<pre><code>package 㤼㸱dplyr㤼㸲 was built under R version 4.0.5
+Attaching package: 㤼㸱dplyr㤼㸲
+
+The following object is masked from 㤼㸱package:Biobase㤼㸲:
+
+    combine
+
+The following objects are masked from 㤼㸱package:BiocGenerics㤼㸲:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from 㤼㸱package:stats㤼㸲:
+
+    filter, lag
+
+The following objects are masked from 㤼㸱package:base㤼㸲:
+
+    intersect, setdiff, setequal, union</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnZ3Bsb3QyKVxubGlicmFyeShncG93ZXJyKVxuYGBgIn0= -->
+<pre class="r"><code>library(ggplot2)
 library(gpowerr)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -1772,29 +1834,42 @@ expressions &lt;- t(exprs(vdx))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Select level of sparsity, find corresponding rho and run benchmark again.</p>
+<p>Select level of sparsity, find corresponding rho and run benchmark again. Manually select a value of i for which you want to know rho.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwMFxuZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV1cbmEgPC0gYXV0b19ncG93ZXIoZGF0YSwgayA9IDIsIHByb3Bfc3BhcnNlID0gMC41LCByZWcgPSAnbDEnKVxuYiA8LSBhdXRvX2dwb3dlcihkYXRhLCBrID0gMiwgcHJvcF9zcGFyc2UgPSAwLjUsIHJlZyA9ICdsMCcpXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwMFxuZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV1cbmEgPC0gYXV0b19ncG93ZXIoZGF0YSwgayA9IDIsIHByb3Bfc3BhcnNlID0gMC41LCByZWcgPSAnbDEnKVxuYGBgIn0= -->
 <pre class="r"><code>i &lt;- 20000
 data &lt;- expressions[, 1:i]
-a &lt;- auto_gpower(data, k = 2, prop_sparse = 0.5, reg = &#39;l1&#39;)
-b &lt;- auto_gpower(data, k = 2, prop_sparse = 0.5, reg = &#39;l0&#39;)
-</code></pre>
+a &lt;- auto_gpower(data, k = 2, prop_sparse = 0.5, reg = &#39;l1&#39;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYiA8LSBhdXRvX2dwb3dlcihkYXRhLCBrID0gMiwgcHJvcF9zcGFyc2UgPSAwLjUsIHJlZyA9ICdsMCcpXG5gYGAifQ== -->
+<pre class="r"><code>b &lt;- auto_gpower(data, k = 2, prop_sparse = 0.5, reg = &#39;l0&#39;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Benchmark for gpower()</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDBcbmRhdGEgPC0gZXhwcmVzc2lvbnNbLCAxOmldXG5kZiA8LSBwcmludChtaWNyb2JlbmNobWFyayhncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDQ4OCwgcmVnID0gJ2wxJyksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAyOTMsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSA1MCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5kZltcImlcIl0gPC0gaVxuZGZbXCJtZXRob2RcIl0gPC0gYyhcInNpbmdsZS11bml0IGwxXCIsIFwic2luZ2xlLXVuaXQgbDBcIilcblxucmVzdWx0IDwtIGRmXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDBcbmRhdGEgPC0gZXhwcmVzc2lvbnNbLCAxOmldXG5kZiA8LSBwcmludChtaWNyb2JlbmNobWFyayhncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDQ4OCwgcmVnID0gJ2wxJyksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAyOTMsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSA1MCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5gYGAifQ== -->
 <pre class="r"><code>i &lt;- 200
 data &lt;- expressions[, 1:i]
 df &lt;- print(microbenchmark(gpower(data, k = 2, rho = 0.0488, reg = &#39;l1&#39;),
                            gpower(data, k = 2, rho = 0.00293, reg = &#39;l0&#39;),
-                           times = 50), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]
-df[&quot;i&quot;] &lt;- i
-df[&quot;method&quot;] &lt;- c(&quot;single-unit l1&quot;, &quot;single-unit l0&quot;)
+                           times = 50), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVW5pdDogc2Vjb25kc1xuIn0= -->
+<pre><code>Unit: seconds</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MiwibmNvbCI6OH0sInJkZiI6Ikg0c0lBQUFBQUFBQUJndHlpVERtaXVCaVlHQmdabUFCWW1aV0lKT0J6VG5BME1qVWlJR0JoUW5JWXdUS2NJTG9DcUFxWVNDREEwanpBbW1JSkpoR1VjaVdrMXFXbWxNTVpBbUFaU0dpdXVrRitlV3BSUm9waVNXSk9nclpDcllLUmpvS1JSbjVRSWFCbm9HSmhRV1FsNW9PNUNubEdDcHBRalhwNGRWa1lHUnBqTkJsQU5TRjZoRFc1SnpFWXBnNzRLNUxTMHd1eVM4Q3N2NEJNUi9JaGZZei9pVVY4aVdJMmsvL3RMQm85WHQydVBpczV4NlZvbE1uMjg5c2tKc1hzS01lTGo2Zjg4RW0vdjZUOW5NdER4U3ZYdllhTGo1NzJ0Mi9aVHVPMk0reTJwdXQvL013WEh4TzNPM3dWZHlNOW5NNGN5YjRDQ0hzWFIxNjRjMmJ2MGZ0VjVvY3VQam11QjFNM01HVEFReGdOTHEzOGhKelUySGU0b0FLc3FSV0ZCUkIyY3k1bVhsUUpsTk9JVXhCYm1vaVRKUXROelVsRTg1aktpMkVhMHlzZ0Z1U1dwYVlnMll6UzJsZVpnbGFlTElYcHlibjU2VVVveW5sTE1vdjE0TTVGRXRxWWY2UFpnNFhLSTcxMG9xQVdpQnhnMkljZTM1QlNXWitIdEF3SmxBU1pFWFR6RmlFSnNCZm1nZXlQRVUzT2FNMEwxdlhCR1FCMUFFTVVBZEJIUU5uYzBDc1pJRTVqQlVXV0tsNTZabDVxYkJ3eVVsTVNzMkJjdmlBbmdUN1VhK2dLRE92Qk9ZVG9HaXhYa2wrU1NKTUhWZHlmZzVNQkpMdS9nRUFSbmQ4ekhvREFBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["expr"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"gpower(data, k = 2, rho = 0.0488, reg = \"l1\")","2":"0.0244079","3":"0.0262729","4":"0.03031112","5":"0.0269427","6":"0.0277056","7":"0.0533891","8":"50"},{"1":"gpower(data, k = 2, rho = 0.00293, reg = \"l0\")","2":"0.0233865","3":"0.0249028","4":"0.02854062","5":"0.0256147","6":"0.0273797","7":"0.0492306","8":"50"}],"options":{"columns":{"min":{},"max":[10],"total":[8]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZbXCJpXCJdIDwtIGlcbmRmW1wibWV0aG9kXCJdIDwtIGMoXCJsMVwiLCBcImwwXCIpXG5cbnJlc3VsdCA8LSBkZlxuXG5gYGAifQ== -->
+<pre class="r"><code>df[&quot;i&quot;] &lt;- i
+df[&quot;method&quot;] &lt;- c(&quot;l1&quot;, &quot;l0&quot;)
 
 result &lt;- df
 </code></pre>
@@ -1803,14 +1878,26 @@ result &lt;- df
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwXG5kYXRhIDwtIGV4cHJlc3Npb25zWywgMTppXVxuZGYgPC0gcHJpbnQobWljcm9iZW5jaG1hcmsoZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjA0MDA0LCByZWcgPSAnbDEnKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMDE3MSAsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAyMCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5kZltcImlcIl0gPC0gaVxuZGZbXCJtZXRob2RcIl0gPC0gYyhcInNpbmdsZS11bml0IGwxXCIsIFwic2luZ2xlLXVuaXQgbDBcIilcblxucmVzdWx0IDwtIGJpbmRfcm93cyhyZXN1bHQsIGRmKVxuXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwXG5kYXRhIDwtIGV4cHJlc3Npb25zWywgMTppXVxuZGYgPC0gcHJpbnQobWljcm9iZW5jaG1hcmsoZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjA0MDA0LCByZWcgPSAnbDEnKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMDE3MSAsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAyMCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5gYGAifQ== -->
 <pre class="r"><code>i &lt;- 2000
 data &lt;- expressions[, 1:i]
 df &lt;- print(microbenchmark(gpower(data, k = 2, rho = 0.04004, reg = &#39;l1&#39;),
                            gpower(data, k = 2, rho = 0.00171 , reg = &#39;l0&#39;),
-                           times = 20), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]
-df[&quot;i&quot;] &lt;- i
-df[&quot;method&quot;] &lt;- c(&quot;single-unit l1&quot;, &quot;single-unit l0&quot;)
+                           times = 20), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVW5pdDogc2Vjb25kc1xuIn0= -->
+<pre><code>Unit: seconds</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MiwibmNvbCI6OH0sInJkZiI6Ikg0c0lBQUFBQUFBQUJndHlpVERtaXVCaVlHQmdabUFCWW1aV0lKT0J6VG5BME1qVWlJR0JoUW5JWXdUS2NJTG9DcUFxWVNDREEwanpBbW1JSkpoR1VjaVdrMXFXbWxNTVpBbUFaU0dpZXVrRitlV3BSUm9waVNXSk9nclpDcllLUmpvS1JSbjVRSWFCbm9HSmdZRUprSnVhRHVRcTVSZ3FhUktseThEUTNCQ2h5d0NvQzlVbHJNazVpY1V3aDhDZGw1YVlYSkpmQkdUOUEySStrQlB0cndreTVEN2gxTFMvR2h0Z3EyOWFBUmUvWHJuZExlalVDdnRyUy8rR2FsMDVBQmUvOFhKUzFrVjlJL3ZycDF1TTZ2V01FZUtUTHEvWmRhL1AvZ2JicmZWUDRuYkJ4VysrV0dxMXZmdXovWTM2YmNsWGRxK0RpejlVVk9vdlozaGhmK3ZYbHJRbGxjZGg0ZzRtREdBQW85RzlsWmVZbXdyekZnZFVrQ1cxb3FBSXltYk96Y3lETXBseUNtRUtjbE1UWWFKc3Vha3BtWEFlVTJraFhHTmlCZHlTMUxMRUhEU2JXVXJ6TWt2UXdwTzlPRFU1UHkrbEdFMHBaMUYrdVI3TW9WaVNDL04vTkhPNFFIR3NsMVlFMUFLSkd4VGoyUE1MU2pMejg0Q0dNWUhTSUN1YVpzWWlOQUgrMGp5UTVTbTZ5Um1sZWRtNnBpQUxvQTVnZ0RvSTZoZzRtd05pSlF2TVlheXd3RXJOUzgvTVM0V0ZTMDVpVW1vT2xNTUg5Q1RZajNvRlJabDVKVENmQUVXTDlVcnlTeEpoNnJpUzgzTmdJcEIwOXc4QUl2Y0xvM3NEQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["expr"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"gpower(data, k = 2, rho = 0.04004, reg = \"l1\")","2":"0.3447877","3":"0.3668039","4":"0.3892561","5":"0.3839616","6":"0.4048246","7":"0.5352948","8":"20"},{"1":"gpower(data, k = 2, rho = 0.00171, reg = \"l0\")","2":"0.3338204","3":"0.3538812","4":"0.3717967","5":"0.3754184","6":"0.3827949","7":"0.4215518","8":"20"}],"options":{"columns":{"min":{},"max":[10],"total":[8]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZbXCJpXCJdIDwtIGlcbmRmW1wibWV0aG9kXCJdIDwtIGMoXCJsMVwiLCBcImwwXCIpXG5cbnJlc3VsdCA8LSBiaW5kX3Jvd3MocmVzdWx0LCBkZilcblxuYGBgIn0= -->
+<pre class="r"><code>df[&quot;i&quot;] &lt;- i
+df[&quot;method&quot;] &lt;- c(&quot;l1&quot;, &quot;l0&quot;)
 
 result &lt;- bind_rows(result, df)
 </code></pre>
@@ -1819,14 +1906,26 @@ result &lt;- bind_rows(result, df)
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwMFxuZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV1cbmRmIDwtIHByaW50KG1pY3JvYmVuY2htYXJrKGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMzQxOCwgcmVnID0gJ2wxJyksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAxMzQsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAxMCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5kZltcImlcIl0gPC0gaVxuZGZbXCJtZXRob2RcIl0gPC0gYyhcInNpbmdsZS11bml0IGwxXCIsIFwic2luZ2xlLXVuaXQgbDBcIilcblxucmVzdWx0IDwtIGJpbmRfcm93cyhyZXN1bHQsIGRmKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaSA8LSAyMDAwMFxuZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV1cbmRmIDwtIHByaW50KG1pY3JvYmVuY2htYXJrKGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMzQxOCwgcmVnID0gJ2wxJyksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAxMzQsIHJlZyA9ICdsMCcpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAxMCksIHVuaXQgPSBcInNcIilbLCBjKFwiZXhwclwiLCBcIm1lYW5cIildXG5gYGAifQ== -->
 <pre class="r"><code>i &lt;- 20000
 data &lt;- expressions[, 1:i]
 df &lt;- print(microbenchmark(gpower(data, k = 2, rho = 0.03418, reg = &#39;l1&#39;),
                            gpower(data, k = 2, rho = 0.00134, reg = &#39;l0&#39;),
-                           times = 10), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]
-df[&quot;i&quot;] &lt;- i
-df[&quot;method&quot;] &lt;- c(&quot;single-unit l1&quot;, &quot;single-unit l0&quot;)
+                           times = 10), unit = &quot;s&quot;)[, c(&quot;expr&quot;, &quot;mean&quot;)]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVW5pdDogc2Vjb25kc1xuIn0= -->
+<pre><code>Unit: seconds</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6MiwibmNvbCI6OH0sInJkZiI6Ikg0c0lBQUFBQUFBQUJndHlpVERtaXVCaVlHQmdabUFCWW1aV0lKT0J6VG5BME1qVWlJR0JoUW5JWXdUS2NJTG9DcUFxWVNDREEwanpBbW1JSkpoR1VjaVdrMXFXbWxNTVpBbUFaU0dpZXVrRitlV3BSUm9waVNXSk9nclpDcllLUmpvS1JSbjVRSWFCbm9HeGlhRUZrSnVhRHVRcTVSZ3FhUktseThEUTJBU2h5d0NvQzlVbHJNazVpY1V3aDhDZGw1YVlYSkpmQkdUOUEySStrQk1kQlBqTnozeDlYdUhBdmU5TVdtbjlmWVM0OTk2T0htMFpCKzdERWxkNFl2VGg0b0o4R2ZxWi9pb092QWtsc2ZQZnVTUFVOeGxzYXpSNDY4Q3pMZW1FajBrUFF2eHJla3Z4OU9VT3ZMb2FiT3ZkVnNIRlJjTG04YzVac05WQnFMYmxlZFJiaEhvVkJqQ0EwZWpleWt2TVRZVjVpd01xeUpKYVVWQUVaVFBuWnVaQm1VdzVoVEFGdWFtSk1GRzIzTlNVVERpUHFiUVFyakd4QW01SmFsbGlEcHJOTEtWNW1TVm80Y2xlbkpxY241ZFNqS2FVc3lpL1hBL21VQ3pKaGZrL21qbGNvRGpXU3lzQ2FvSEVEWXB4N1BrRkpabjVlVUREbUVCcGtCVk5NMk1SbWdCL2FSN0k4aFRkNUl6U3ZHeGRNNUFGVUFjd1FCMEVkUXljelFHeGtnWG1NRlpZWUtYbXBXZm1wY0xDSlNjeEtUVUh5dUVEZWhMc1I3MkNvc3k4RXBoUGdLTEZlaVg1Sllrd2RWekorVGt3RVVpNit3Y0FYUm50QUhzREFBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["expr"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["min"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["lq"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["mean"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["uq"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["neval"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"gpower(data, k = 2, rho = 0.03418, reg = \"l1\")","2":"4.014861","3":"4.073965","4":"4.264069","5":"4.127139","6":"4.239653","7":"5.084587","8":"10"},{"1":"gpower(data, k = 2, rho = 0.00134, reg = \"l0\")","2":"3.468163","3":"3.470262","4":"3.672097","5":"3.589056","6":"3.647049","7":"4.622577","8":"10"}],"options":{"columns":{"min":{},"max":[10],"total":[8]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZbXCJpXCJdIDwtIGlcbmRmW1wibWV0aG9kXCJdIDwtIGMoXCJsMVwiLCBcImwwXCIpXG5cbnJlc3VsdCA8LSBiaW5kX3Jvd3MocmVzdWx0LCBkZilcbmBgYCJ9 -->
+<pre class="r"><code>df[&quot;i&quot;] &lt;- i
+df[&quot;method&quot;] &lt;- c(&quot;l1&quot;, &quot;l0&quot;)
 
 result &lt;- bind_rows(result, df)</code></pre>
 <!-- rnb-source-end -->
@@ -1834,26 +1933,30 @@ result &lt;- bind_rows(result, df)</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucG5nKFwiZmlndXJlcy9ydW5uaW5nX3RpbWVzLnBuZ1wiLCB3aWR0aCA9IDYwMCwgaGVpZ2h0ID0gMzcwLCByZXM9OTApXG5cbmdncGxvdChyZXN1bHQsIGFlcyh4PWksIHk9bWVhbiwgY29sb3I9bWV0aG9kKSkgK1xuICBnZW9tX2xpbmUoKSArXG4gIHNjYWxlX3hfbG9nMTAoYnJlYWtzID0gYygxMDAsIDEwMDAsIDEwMDAwLCAyMDAwMCkpICtcbiAgc2NhbGVfeV9sb2cxMCgpICtcbiAgbGFicyh4ID0gXCJsb2cgbnVtYmVyIG9mIHZhcmlhYmxlc1wiLCB5ID0gXCJsb2cgcnVubmluZyB0aW1lIChzZWNvbmRzKVwiLCBcbiAgICAgICB0aXRsZSA9IFwiTWVhbiBydW5uaW5nIHRpbWVzIG9uIHRoZSBWRFggZXhwcmVzc2lvbnMgZGF0YXNldCBcIiwgXG4gICAgICAgc3VidGl0bGUgPSBcInRvIG9idGFpbiBhIDUwJSBzcGFyc2Ugd2VpZ2h0cyBtYXRyaXhcIixcbiAgICAgICBjb2xvciA9IFwiTWV0aG9kXCIpXG4gIFxuXG5kZXYub2ZmKClcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucG5nKFwiZmlndXJlcy9ydW5uaW5nX3RpbWVzLnBuZ1wiLCB3aWR0aCA9IDYwMCwgaGVpZ2h0ID0gMzcwLCByZXM9OTApXG5cbmdncGxvdChyZXN1bHQsIGFlcyh4PWksIHk9bWVhbiwgY29sb3I9bWV0aG9kKSkgK1xuICBnZW9tX2xpbmUoKSArXG4gIHNjYWxlX3hfbG9nMTAoYnJlYWtzID0gYygyMDAsIDIwMDAsIDIwMDAwKSkgK1xuICBzY2FsZV95X2xvZzEwKCkgK1xuICBsYWJzKHggPSBcIk51bWJlciBvZiB2YXJpYWJsZXNcIiwgeSA9IFwiUnVubmluZyB0aW1lIChzZWNvbmRzKVwiLCBcbiAgICAgICB0aXRsZSA9IFwiTWVhbiBydW5uaW5nIHRpbWVzIG9uIHRoZSBWRFggZXhwcmVzc2lvbnMgZGF0YXNldFwiLCBcbiAgICAgICBjb2xvciA9IFwiTWV0aG9kXCIsXG4gICAgICAgY2FwdGlvbiA9IFwiQm90aCBheGlzIGFyZSBvbiBhIGxvZyBzY2FsZVwiKVxuICBcblxuZGV2Lm9mZigpXG5gYGAifQ== -->
 <pre class="r"><code>png(&quot;figures/running_times.png&quot;, width = 600, height = 370, res=90)
 
 ggplot(result, aes(x=i, y=mean, color=method)) +
   geom_line() +
-  scale_x_log10(breaks = c(100, 1000, 10000, 20000)) +
+  scale_x_log10(breaks = c(200, 2000, 20000)) +
   scale_y_log10() +
-  labs(x = &quot;log number of variables&quot;, y = &quot;log running time (seconds)&quot;, 
-       title = &quot;Mean running times on the VDX expressions dataset &quot;, 
-       subtitle = &quot;to obtain a 50% sparse weights matrix&quot;,
-       color = &quot;Method&quot;)
+  labs(x = &quot;Number of variables&quot;, y = &quot;Running time (seconds)&quot;, 
+       title = &quot;Mean running times on the VDX expressions dataset&quot;, 
+       color = &quot;Method&quot;,
+       caption = &quot;Both axis are on a log scale&quot;)
   
 
 dev.off()</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoibnVsbCBkZXZpY2UgXG4gICAgICAgICAgMSBcbiJ9 -->
+<pre><code>null device 
+          1 </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJ1bm5pbmcgdGltZXMiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpMb2FkaW5nIGRlcGVuZGVuY2llcw0KYGBge3J9DQpsaWJyYXJ5KGJyZWFzdENhbmNlclZEWCkNCmxpYnJhcnkobWljcm9iZW5jaG1hcmspDQpsaWJyYXJ5KEJpb2Jhc2UpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeShncG93ZXJyKQ0KYGBgDQoNCkxvYWRpbmcgZGF0YQ0KYGBge3J9DQpkYXRhKHZkeCkNCmV4cHJlc3Npb25zIDwtIHQoZXhwcnModmR4KSkNCmBgYA0KDQpTZWxlY3QgbGV2ZWwgb2Ygc3BhcnNpdHksIGZpbmQgY29ycmVzcG9uZGluZyByaG8gYW5kIHJ1biBiZW5jaG1hcmsgYWdhaW4uDQpgYGB7cn0NCmkgPC0gMjAwMDANCmRhdGEgPC0gZXhwcmVzc2lvbnNbLCAxOmldDQphIDwtIGF1dG9fZ3Bvd2VyKGRhdGEsIGsgPSAyLCBwcm9wX3NwYXJzZSA9IDAuNSwgcmVnID0gJ2wxJykNCmIgPC0gYXV0b19ncG93ZXIoZGF0YSwgayA9IDIsIHByb3Bfc3BhcnNlID0gMC41LCByZWcgPSAnbDAnKQ0KDQpgYGANCg0KDQpCZW5jaG1hcmsgZm9yIGdwb3dlcigpDQpgYGB7cn0NCmkgPC0gMjAwDQpkYXRhIDwtIGV4cHJlc3Npb25zWywgMTppXQ0KZGYgPC0gcHJpbnQobWljcm9iZW5jaG1hcmsoZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjA0ODgsIHJlZyA9ICdsMScpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjAwMjkzLCByZWcgPSAnbDAnKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHRpbWVzID0gNTApLCB1bml0ID0gInMiKVssIGMoImV4cHIiLCAibWVhbiIpXQ0KZGZbImkiXSA8LSBpDQpkZlsibWV0aG9kIl0gPC0gYygic2luZ2xlLXVuaXQgbDEiLCAic2luZ2xlLXVuaXQgbDAiKQ0KDQpyZXN1bHQgPC0gZGYNCg0KYGBgDQoNCmBgYHtyfQ0KaSA8LSAyMDAwDQpkYXRhIDwtIGV4cHJlc3Npb25zWywgMTppXQ0KZGYgPC0gcHJpbnQobWljcm9iZW5jaG1hcmsoZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjA0MDA0LCByZWcgPSAnbDEnKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMDE3MSAsIHJlZyA9ICdsMCcpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAyMCksIHVuaXQgPSAicyIpWywgYygiZXhwciIsICJtZWFuIildDQpkZlsiaSJdIDwtIGkNCmRmWyJtZXRob2QiXSA8LSBjKCJzaW5nbGUtdW5pdCBsMSIsICJzaW5nbGUtdW5pdCBsMCIpDQoNCnJlc3VsdCA8LSBiaW5kX3Jvd3MocmVzdWx0LCBkZikNCg0KYGBgDQoNCmBgYHtyfQ0KaSA8LSAyMDAwMA0KZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV0NCmRmIDwtIHByaW50KG1pY3JvYmVuY2htYXJrKGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMzQxOCwgcmVnID0gJ2wxJyksDQogICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAxMzQsIHJlZyA9ICdsMCcpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSAxMCksIHVuaXQgPSAicyIpWywgYygiZXhwciIsICJtZWFuIildDQpkZlsiaSJdIDwtIGkNCmRmWyJtZXRob2QiXSA8LSBjKCJzaW5nbGUtdW5pdCBsMSIsICJzaW5nbGUtdW5pdCBsMCIpDQoNCnJlc3VsdCA8LSBiaW5kX3Jvd3MocmVzdWx0LCBkZikNCmBgYA0KDQpgYGB7cn0NCnBuZygiZmlndXJlcy9ydW5uaW5nX3RpbWVzLnBuZyIsIHdpZHRoID0gNjAwLCBoZWlnaHQgPSAzNzAsIHJlcz05MCkNCg0KZ2dwbG90KHJlc3VsdCwgYWVzKHg9aSwgeT1tZWFuLCBjb2xvcj1tZXRob2QpKSArDQogIGdlb21fbGluZSgpICsNCiAgc2NhbGVfeF9sb2cxMChicmVha3MgPSBjKDEwMCwgMTAwMCwgMTAwMDAsIDIwMDAwKSkgKw0KICBzY2FsZV95X2xvZzEwKCkgKw0KICBsYWJzKHggPSAibG9nIG51bWJlciBvZiB2YXJpYWJsZXMiLCB5ID0gImxvZyBydW5uaW5nIHRpbWUgKHNlY29uZHMpIiwgDQogICAgICAgdGl0bGUgPSAiTWVhbiBydW5uaW5nIHRpbWVzIG9uIHRoZSBWRFggZXhwcmVzc2lvbnMgZGF0YXNldCAiLCANCiAgICAgICBzdWJ0aXRsZSA9ICJ0byBvYnRhaW4gYSA1MCUgc3BhcnNlIHdlaWdodHMgbWF0cml4IiwNCiAgICAgICBjb2xvciA9ICJNZXRob2QiKQ0KICANCg0KZGV2Lm9mZigpDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJ1bm5pbmcgdGltZXMiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpMb2FkaW5nIGRlcGVuZGVuY2llcw0KYGBge3J9DQpsaWJyYXJ5KGJyZWFzdENhbmNlclZEWCkNCmxpYnJhcnkobWljcm9iZW5jaG1hcmspDQpsaWJyYXJ5KEJpb2Jhc2UpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeShncG93ZXJyKQ0KYGBgDQoNCkxvYWRpbmcgZGF0YQ0KYGBge3J9DQpkYXRhKHZkeCkNCmV4cHJlc3Npb25zIDwtIHQoZXhwcnModmR4KSkNCmBgYA0KDQpTZWxlY3QgbGV2ZWwgb2Ygc3BhcnNpdHksIGZpbmQgY29ycmVzcG9uZGluZyByaG8gYW5kIHJ1biBiZW5jaG1hcmsgYWdhaW4uDQpNYW51YWxseSBzZWxlY3QgYSB2YWx1ZSBvZiBpIGZvciB3aGljaCB5b3Ugd2FudCB0byBrbm93IHJoby4NCmBgYHtyfQ0KaSA8LSAyMDAwMA0KZGF0YSA8LSBleHByZXNzaW9uc1ssIDE6aV0NCmEgPC0gYXV0b19ncG93ZXIoZGF0YSwgayA9IDIsIHByb3Bfc3BhcnNlID0gMC41LCByZWcgPSAnbDEnKQ0KYiA8LSBhdXRvX2dwb3dlcihkYXRhLCBrID0gMiwgcHJvcF9zcGFyc2UgPSAwLjUsIHJlZyA9ICdsMCcpDQoNCmBgYA0KDQoNCkJlbmNobWFyayBmb3IgZ3Bvd2VyKCkNCmBgYHtyfQ0KaSA8LSAyMDANCmRhdGEgPC0gZXhwcmVzc2lvbnNbLCAxOmldDQpkZiA8LSBwcmludChtaWNyb2JlbmNobWFyayhncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDQ4OCwgcmVnID0gJ2wxJyksDQogICAgICAgICAgICAgICAgICAgICAgICAgICBncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDAyOTMsIHJlZyA9ICdsMCcpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgdGltZXMgPSA1MCksIHVuaXQgPSAicyIpWywgYygiZXhwciIsICJtZWFuIildDQpkZlsiaSJdIDwtIGkNCmRmWyJtZXRob2QiXSA8LSBjKCJsMSIsICJsMCIpDQoNCnJlc3VsdCA8LSBkZg0KDQpgYGANCg0KYGBge3J9DQppIDwtIDIwMDANCmRhdGEgPC0gZXhwcmVzc2lvbnNbLCAxOmldDQpkZiA8LSBwcmludChtaWNyb2JlbmNobWFyayhncG93ZXIoZGF0YSwgayA9IDIsIHJobyA9IDAuMDQwMDQsIHJlZyA9ICdsMScpLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjAwMTcxICwgcmVnID0gJ2wwJyksDQogICAgICAgICAgICAgICAgICAgICAgICAgICB0aW1lcyA9IDIwKSwgdW5pdCA9ICJzIilbLCBjKCJleHByIiwgIm1lYW4iKV0NCmRmWyJpIl0gPC0gaQ0KZGZbIm1ldGhvZCJdIDwtIGMoImwxIiwgImwwIikNCg0KcmVzdWx0IDwtIGJpbmRfcm93cyhyZXN1bHQsIGRmKQ0KDQpgYGANCg0KYGBge3J9DQppIDwtIDIwMDAwDQpkYXRhIDwtIGV4cHJlc3Npb25zWywgMTppXQ0KZGYgPC0gcHJpbnQobWljcm9iZW5jaG1hcmsoZ3Bvd2VyKGRhdGEsIGsgPSAyLCByaG8gPSAwLjAzNDE4LCByZWcgPSAnbDEnKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGdwb3dlcihkYXRhLCBrID0gMiwgcmhvID0gMC4wMDEzNCwgcmVnID0gJ2wwJyksDQogICAgICAgICAgICAgICAgICAgICAgICAgICB0aW1lcyA9IDEwKSwgdW5pdCA9ICJzIilbLCBjKCJleHByIiwgIm1lYW4iKV0NCmRmWyJpIl0gPC0gaQ0KZGZbIm1ldGhvZCJdIDwtIGMoImwxIiwgImwwIikNCg0KcmVzdWx0IDwtIGJpbmRfcm93cyhyZXN1bHQsIGRmKQ0KYGBgDQoNCmBgYHtyfQ0KcG5nKCJmaWd1cmVzL3J1bm5pbmdfdGltZXMucG5nIiwgd2lkdGggPSA2MDAsIGhlaWdodCA9IDM3MCwgcmVzPTkwKQ0KDQpnZ3Bsb3QocmVzdWx0LCBhZXMoeD1pLCB5PW1lYW4sIGNvbG9yPW1ldGhvZCkpICsNCiAgZ2VvbV9saW5lKCkgKw0KICBzY2FsZV94X2xvZzEwKGJyZWFrcyA9IGMoMjAwLCAyMDAwLCAyMDAwMCkpICsNCiAgc2NhbGVfeV9sb2cxMCgpICsNCiAgbGFicyh4ID0gIk51bWJlciBvZiB2YXJpYWJsZXMiLCB5ID0gIlJ1bm5pbmcgdGltZSAoc2Vjb25kcykiLCANCiAgICAgICB0aXRsZSA9ICJNZWFuIHJ1bm5pbmcgdGltZXMgb24gdGhlIFZEWCBleHByZXNzaW9ucyBkYXRhc2V0IiwgDQogICAgICAgY29sb3IgPSAiTWV0aG9kIiwNCiAgICAgICBjYXB0aW9uID0gIkJvdGggYXhpcyBhcmUgb24gYSBsb2cgc2NhbGUiKQ0KICANCg0KZGV2Lm9mZigpDQpgYGANCg0K</div>
 
 
 
