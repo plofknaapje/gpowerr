@@ -18,4 +18,6 @@ Two usage examples are included in the folder thesis_files.
  - Thanks to Katrijn and Rosember for giving me this project.
  - gpowerr was developed as a part of my Bachelor End Project.
 
-  
+## Logo
+![Logo](https://github.com/plofknaapje/gpowerr/blob/main/logo.png)
+Designed by Floor
