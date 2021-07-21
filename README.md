@@ -20,5 +20,5 @@ Two usage examples are included in the folder thesis_files.
 
 ## Logo
 ![Logo](https://github.com/plofknaapje/gpowerr/blob/main/logo.png)  
-Designed by [https://www.linkedin.com/in/floor-schreurs-24856316a/](Floor Schreurs)
+Designed by [Floor Schreurs](https://www.linkedin.com/in/floor-schreurs-24856316a/)
 
